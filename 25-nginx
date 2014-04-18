@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Check syntax
+/usr/sbin/nginx -t
+if [ $? -ne 0 ]; then
+    echo "Nginx syntax check fail"
+    exit 1
+fi
+
+# Run Nginx
+/usr/sbin/nginx
+
+# Wait for /run/nginx.pid to appear and copy it.
+while [ ! -e /run/nginx.pid ]; do
+  echo "Waiting for /run/nginx.pid to appear..."
+  sleep 1
+done
+cp /run/nginx.pid /run/watch/nginx
+

@@ -1,0 +1,62 @@
+#!/bin/bash
+
+set -e
+set -x
+
+pushd /srv/phabricator/phabricator
+
+if [ -e /config/script.pre ]; then
+    echo "Applying pre-configuration script..."
+    /config/script.pre
+else
+    echo "+++++ MISSING CONFIGURATION +++++"
+    echo ""
+    echo "You must specify a preconfiguration script for "
+    echo "this Docker image.  To do so: "
+    echo ""
+    echo "  1) Create a 'script.pre' file in a directory "
+    echo "     called 'config', somewhere on the host. "
+    echo ""
+    echo "  2) Run this Docker instance again with "
+    echo "     -v path/to/config:/config passed as an "
+    echo "     argument."
+    echo ""
+    echo "+++++ BOOT FAILED! +++++"
+    exit 1
+fi
+
+popd
+
+echo "Upgrading Phabricator..."
+
+pushd /srv/phabricator/libphutil
+git pull --rebase
+popd
+
+pushd /srv/phabricator/arcanist
+git pull --rebase
+popd
+
+pushd /srv/phabricator/phabricator
+git pull --rebase
+popd
+
+echo "Applying any pending DB schema upgrades..."
+/srv/phabricator/phabricator/bin/storage upgrade --force
+
+pushd /srv/phabricator/phabricator
+
+if [ -e /config/script.post ]; then
+    echo "Applying post-configuration script..."
+    /config/script.post
+fi
+
+if [ -e /config/cert.pem ]; then
+    if [ -e /config/cert.key ]; then
+        echo "Enabling SSL due to presence of certificates!"
+        mv /etc/nginx/nginx-ssl.conf /etc/nginx/nginx.conf
+    fi
+fi
+
+popd
+

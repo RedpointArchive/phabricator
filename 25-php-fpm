@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Run PHP-FPM
+/usr/sbin/php-fpm &
+phpfpmpid=$!
+
+echo $phpfpmpid > /run/watch/php-fpm
+
