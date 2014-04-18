@@ -23,16 +23,19 @@ file should be marked as executable.  Place the following content in that file:
 
 To run this image:
 
-    docker run -d -P -v path/to/config:/config hachque/phabricator
+    docker run --rm -P -v path/to/config:/config hachque/phabricator
 
 What do these parameters do?
 
-    -d = detach from tty
+    --rm = delete the container when it stops running
     -P = map exposed ports over NAT
     -v path/to/config:/config = map the configuration from the host to the container
     hachque/systemd-none = the name of the image
 
-You can use this image to run applications if you don't want to use cgroups or privileged mode.
+This image is intended to be used in such a way that a new container is created each time, instead of starting and stopping a pre-existing container from this image.  The use of `--rm` will cause all changes stored inside the container to be lost on exit, so remember:
+
+  - **Make sure you configure Phabricator to store files in MySQL or AWS**.  Don't use local file storage, or you'll lose the lot when the container exits.
+  - **Map a directory from the host for repository storage**.  If you don't map a directory from the host for repository storage, then all your repositories will be lost when the container exists.
 
 Enabling SSL
 ----------------
