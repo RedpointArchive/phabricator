@@ -53,6 +53,7 @@ RUN mkdir /etc/phabricator-ssh
 ADD sshd_config.phabricator /etc/phabricator-ssh/sshd_config.phabricator
 ADD 45-phabricator-ssh /etc/init.simple/45-phabricator-ssh
 ADD phabricator-ssh-hook.sh /etc/phabricator-ssh/phabricator-ssh-hook.sh
+RUN chown root:root /etc/phabricator-ssh/*
 
 # Set /init as the default
 CMD ["/init"]
