@@ -19,7 +19,7 @@ USER root
 WORKDIR /
 
 # Install requirements
-RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert
+RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo
 
 # Expose Nginx on port 80 and 443
 EXPOSE 80
