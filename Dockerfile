@@ -25,6 +25,13 @@ RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl
 EXPOSE 80
 EXPOSE 443
 
+# Expose Aphlict (notification server) on 843 and 22280
+EXPOSE 843
+EXPOSE 22280
+
+# Expose SSH port 24 (Git SSH will be on 22, regular SSH on 24)
+EXPOSE 24
+
 # Add files
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD nginx-ssl.conf /etc/nginx/nginx-ssl.conf
