@@ -45,7 +45,8 @@ ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD php.ini /etc/php5/fpm/php.ini
 
 # Move the default SSH to port 24
-RUN echo "\nPort 24" >> /etc/ssh/sshd_config
+RUN echo "" >> /etc/ssh/sshd_config
+RUN echo "Port 24" >> /etc/ssh/sshd_config
 
 # Configure Phabricator SSH service
 RUN mkdir /etc/phabricator-ssh
