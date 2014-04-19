@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Start the Phabricator notification server
+pushd /srv/phabricator/phabricator
+bin/aphlict
+popd

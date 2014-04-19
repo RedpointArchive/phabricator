@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Start the Phabricator daemons
+pushd /srv/phabricator/phabricator
+bin/phd start
+
+if [ -e /config/script.phd ]; then
+    echo "Applying post-daemon script..."
+    /config/script.phd
+fi
+
+popd

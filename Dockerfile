@@ -19,7 +19,7 @@ USER root
 WORKDIR /
 
 # Install requirements
-RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv which
+RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv which python-Pygments nodejs
 
 # Expose Nginx on port 80 and 443
 EXPOSE 80
@@ -32,6 +32,8 @@ ADD fastcgi.conf /etc/nginx/fastcgi.conf
 ADD 25-nginx /etc/init.simple/25-nginx
 ADD 25-php-fpm /etc/init.simple/25-php-fpm
 ADD 10-boot-conf /etc/init.simple/10-boot-conf
+ADD 35-phd /etc/init.simple/35-phd
+ADD 40-aphlict /etc/init.simple/40-aphlict
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD php.ini /etc/php5/fpm/php.ini
 
