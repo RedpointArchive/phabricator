@@ -44,5 +44,14 @@ ADD 40-aphlict /etc/init.simple/40-aphlict
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD php.ini /etc/php5/fpm/php.ini
 
+# Move the default SSH to port 24
+RUN echo "\nPort 24" >> /etc/ssh/sshd_config
+
+# Configure Phabricator SSH service
+RUN mkdir /etc/phabricator-ssh
+ADD sshd_config.phabricator /etc/phabricator-ssh/sshd_config.phabricator
+ADD 45-phabricator-ssh /etc/init.simple/45-phabricator-ssh
+ADD phabricator-ssh-hook.sh /etc/phabricator-ssh/phabricator-ssh-hook.sh
+
 # Set /init as the default
 CMD ["/init"]
