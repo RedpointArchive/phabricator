@@ -32,6 +32,7 @@ What do these parameters do?
     -p 22280:22280 = forward the host's 22280 port for the notification server
     -v path/to/config:/config = map the configuration from the host to the container
     -v path/to/repo/storage:/srv/repo = map the repository storage from the host to the container
+    --name phabricator = the name of the container
     --link mariadb:linked_mariadb = (optional) if you are running MariaDB in a Docker container
     hachque/phabricator = the name of the image
 
