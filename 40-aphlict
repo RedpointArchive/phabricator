@@ -2,5 +2,5 @@
 
 # Start the Phabricator notification server
 pushd /srv/phabricator/phabricator
-bin/aphlict
+bin/aphlict start
 popd
