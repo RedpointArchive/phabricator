@@ -41,6 +41,11 @@ pushd /srv/phabricator/phabricator
 git pull --rebase
 popd
 
+if [ -e /config/script.premig ]; then
+    echo "Applying pre-migration script..."
+    /config/script.premig
+fi
+
 echo "Applying any pending DB schema upgrades..."
 /srv/phabricator/phabricator/bin/storage upgrade --force
 
