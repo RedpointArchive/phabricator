@@ -3,6 +3,10 @@ FROM hachque/systemd-none
 # Install requirements
 RUN zypper --non-interactive in git
 
+# Create nginx user and group
+RUN echo "nginx:x:497:495:user for nginx:/var/lib/nginx:/bin/false" >> /etc/passwd
+RUN echo "nginx:!:495:" >> /etc/group
+
 # Add user
 RUN echo "git:x:2000:2000:user for phabricator:/srv/phabricator:/bin/bash" >> /etc/passwd
 RUN echo "wwwgrp-phabricator:!:2000:nginx" >> /etc/group
