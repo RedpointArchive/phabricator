@@ -59,5 +59,9 @@ ADD 45-phabricator-ssh /etc/init.simple/45-phabricator-ssh
 ADD phabricator-ssh-hook.sh /etc/phabricator-ssh/phabricator-ssh-hook.sh
 RUN chown root:root /etc/phabricator-ssh/*
 
+# Workaround for https://gist.github.com/porjo/35ea98cb64553c0c718a
+RUN chmod u+s /usr/sbin/postdrop
+RUN chmod u+s /usr/sbin/postqueue
+
 # Set /init as the default
 CMD ["/init"]
