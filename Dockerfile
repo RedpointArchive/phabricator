@@ -1,5 +1,10 @@
 FROM hachque/systemd-none
 
+# Update base image
+RUN zypper --non-interactive patch
+# Update again in case package manager was updated.
+RUN zypper --non-interactive patch
+
 # Install requirements
 RUN zypper --non-interactive in git
 
