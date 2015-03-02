@@ -8,6 +8,17 @@ chown git:wwwgrp-phabricator /var/log/aphlict.log
 cp -Rv /usr/lib/node_modules /srv/phabricator/phabricator/support/aphlict/server/
 chown -Rv git:wwwgrp-phabricator /srv/phabricator/phabricator/support/aphlict/server/node_modules
 
+# Set Aphlict SSL keys if present
+if [ -e /config/cert.pem ]; then
+    if [ -e /config/cert.key ]; then
+        echo "Enabling SSL in Aphlict due to presence of certificates!"
+        pushd /srv/phabricator/phabricator
+        sudo -u git bin/config set notification.ssl-key /config/cert.key
+        sudo -u git bin/config set notification.ssl-cert /config/cert.pem
+        popd
+    fi
+fi
+
 # Start the Phabricator notification server
 pushd /srv/phabricator/phabricator
 sudo -u git bin/aphlict start
