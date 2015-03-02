@@ -12,9 +12,16 @@ chown -Rv git:wwwgrp-phabricator /srv/phabricator/phabricator/support/aphlict/se
 if [ -e /config/cert.pem ]; then
     if [ -e /config/cert.key ]; then
         echo "Enabling SSL in Aphlict due to presence of certificates!"
+        mkdir /srv/phabricator/_aphlict_keys
+        cp /config/cert.key /srv/phabricator/_aphlict_keys/cert.key
+        cp /config/cert.pem /srv/phabricator/_aphlict_keys/cert.pem
+        chown git:wwwgrp-phabricator /srv/phabricator/_aphlict_keys/cert.key
+        chown git:wwwgrp-phabricator /srv/phabricator/_aphlict_keys/cert.pem
+        chmod u=r,go= /srv/phabricator/_aphlict_keys/cert.key
+        chmod u=r,go= /srv/phabricator/_aphlict_keys/cert.pem
         pushd /srv/phabricator/phabricator
-        sudo -u git bin/config set notification.ssl-key /config/cert.key
-        sudo -u git bin/config set notification.ssl-cert /config/cert.pem
+        sudo -u git bin/config set notification.ssl-key /srv/phabricator/_aphlict_keys/cert.key
+        sudo -u git bin/config set notification.ssl-cert /srv/phabricator/_aphlict_keys/cert.pem
         popd
     fi
 fi
