@@ -1,12 +1,17 @@
 FROM hachque/systemd-none
 
 # Update base image
-RUN zypper --non-interactive patch
+RUN zypper --non-interactive patch || true
 # Update again in case package manager was updated.
 RUN zypper --non-interactive patch
 
 # Install requirements
 RUN zypper --non-interactive in git
+
+# Install NodeJS + WebSockets module
+RUN zypper --non-interactive ar http://download.opensuse.org/repositories/home:/marec2000:/nodejs/openSUSE_13.1/ nodejs
+RUN zypper --gpg-auto-import-keys --non-interactive in nodejs-ws
+RUN zypper --non-interactive rr nodejs
 
 # Create nginx user and group
 RUN echo "nginx:x:497:495:user for nginx:/var/lib/nginx:/bin/false" >> /etc/passwd

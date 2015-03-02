@@ -2,5 +2,5 @@
 
 # Start the Phabricator notification server
 pushd /srv/phabricator/phabricator
-bin/aphlict start
+sudo -u git bin/aphlict start
 popd

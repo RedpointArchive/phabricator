@@ -23,12 +23,11 @@ file should be marked as executable.  Place the following content in that file:
 
 To run this image:
 
-    /usr/bin/docker run -p 22:22 -p 843:843 -p 22280:22280 -v /path/to/config:/config -v /path/to/repo/storage:/srv/repo --name=phabricator --link mariadb:linked_mariadb hachque/phabricator
+    /usr/bin/docker run -p 22:22 -p 22280:22280 -v /path/to/config:/config -v /path/to/repo/storage:/srv/repo --name=phabricator --link mariadb:linked_mariadb hachque/phabricator
 
 What do these parameters do?
 
     -p 22:22 = forward the host's SSH port to Phabricator for repository access
-    -p 843:843 = forward the host's 843 port for the notification server
     -p 22280:22280 = forward the host's 22280 port for the notification server
     -v path/to/config:/config = map the configuration from the host to the container
     -v path/to/repo/storage:/srv/repo = map the repository storage from the host to the container
