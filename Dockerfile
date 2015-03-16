@@ -67,6 +67,7 @@ ADD nginx-ssl.conf /etc/nginx/nginx-ssl.conf
 ADD fastcgi.conf /etc/nginx/fastcgi.conf
 ADD 25-nginx /etc/init.simple/25-nginx
 ADD 25-php-fpm /etc/init.simple/25-php-fpm
+ADD 20-postfix /etc/init.simple/20-postfix
 ADD 10-boot-conf /etc/init.simple/10-boot-conf
 ADD 35-phd /etc/init.simple/35-phd
 ADD 40-aphlict /etc/init.simple/40-aphlict

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Run Postfix
+/etc/init.d/postfix start
+
