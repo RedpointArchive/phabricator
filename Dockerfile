@@ -29,6 +29,7 @@ WORKDIR /srv/phabricator
 RUN git clone git://github.com/facebook/libphutil.git
 RUN git clone git://github.com/facebook/arcanist.git
 RUN git clone git://github.com/facebook/phabricator.git
+RUN git clone git://github.com/PHPOffice/PHPExcel.git
 USER root
 WORKDIR /
 
