@@ -5,26 +5,24 @@ set -x
 
 pushd /srv/phabricator/phabricator
 
+# General config
+# Set the name of the host running MySQL:
+./bin/config set mysql.host $MYSQL_HOST
+# If MySQL is running on a non-standard port:
+./bin/config set mysql.port $MYSQL_PORT
+# Set the username for connecting to MySQL:
+./bin/config set mysql.user $MYSQL_USER
+# Set the password for connecting to MySQL:
+./bin/config set mysql.pass $MYSQL_PASSWORD
+# Set the base URI that will be used to access Phabricator:
+./bin/config set phabricator.base-uri $BASE_URI
+
 if [ -e /config/script.pre ]; then
-    echo "Applying pre-configuration script..."
+    echo "Applying custom script..."
     /config/script.pre
 else
-    echo "+++++ MISSING CONFIGURATION +++++"
-    echo ""
-    echo "You must specify a preconfiguration script for "
-    echo "this Docker image.  To do so: "
-    echo ""
-    echo "  1) Create a 'script.pre' file in a directory "
-    echo "     called 'config', somewhere on the host. "
-    echo ""
-    echo "  2) Run this Docker instance again with "
-    echo "     -v path/to/config:/config passed as an "
-    echo "     argument."
-    echo ""
-    echo "+++++ BOOT FAILED! +++++"
-    exit 1
+    echo "WARN: custom conf script not found!"
 fi
-
 popd
 
 echo "Upgrading Phabricator..."

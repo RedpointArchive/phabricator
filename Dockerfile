@@ -1,5 +1,12 @@
 FROM hachque/systemd-none
 
+ENV MYSQL_HOST=mysql
+ENV MYSQL_PORT=3306
+
+ENV MYSQL_USER=root
+ENV MYSQL_PASSWORD=password
+ENV BASE_URI=http://phab.example.com
+
 # Update base image
 RUN zypper --non-interactive patch || true
 # Update again in case package manager was updated.
