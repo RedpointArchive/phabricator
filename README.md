@@ -1,29 +1,23 @@
 Usage
 ----------
 
-To configure this image, create a `config` directory, with a `script.pre` file inside it.  This
-file should be marked as executable.  Place the following content in that file:
+To start this image, you need to configure DB connection via envvars.
 
-    #!/bin/bash
+* `MYSQL_HOST` - address of MySQL server (default: `mysql`)
+* `MYSQL_PORT` - port of MySQL server (default: `3306`)
+* `MYSQL_USER` - MySQL username (default: `root`)
+* `MYSQL_PASSWORD` - MySQL password (default: `password`)
+* `BASE_URI` - Phabricator's base URI (default: `http://phab.example.com/`)
 
-    # Set the name of the host running MySQL:
-    ./bin/config set mysql.host "example.com"
+Example:
 
-    # If MySQL is running on a non-standard port:
-    #./bin/config set mysql.port 3306
+    /usr/bin/docker run -p 22:22 -p 22280:22280 -v /path/to/repo/storage:/srv/repo --name=phabricator --link mariadb:mysql -e MYSQL_USER=foo -e MYSQL_PASSWORD=bar -e BASE_URI="http://phab.baz/" hachque/phabricator
 
-    # Set the username for connecting to MySQL:
-    ./bin/config set mysql.user "root"
+If you'll mount MySQL container as `mysql` (in example above) then it will be used automatically.
 
-    # Set the password for connecting to MySQL:
-    ./bin/config set mysql.pass "password"
+To customize startup even further, you can create `script.pre` file somewhere, mark it as executable, and mount it to the container:
 
-    # Set the base URI that will be used to access Phabricator:
-    ./bin/config set phabricator.base-uri "http://myphabricator.com/"
-
-To run this image:
-
-    /usr/bin/docker run -p 22:22 -p 22280:22280 -v /path/to/config:/config -v /path/to/repo/storage:/srv/repo --name=phabricator --link mariadb:linked_mariadb hachque/phabricator
+    /usr/bin/docker run -p 22:22 -p 22280:22280 -v /path/to/repo/storage:/srv/repo --name=phabricator --link mariadb:mysql -e MYSQL_USER=foo -e MYSQL_PASSWORD=bar -e BASE_URI="http://phab.baz/" -v /path/to/config:/config hachque/phabricator
 
 What do these parameters do?
 
@@ -32,7 +26,7 @@ What do these parameters do?
     -v path/to/config:/config = map the configuration from the host to the container
     -v path/to/repo/storage:/srv/repo = map the repository storage from the host to the container
     --name phabricator = the name of the container
-    --link mariadb:linked_mariadb = (optional) if you are running MariaDB in a Docker container
+    --link mariadb:mysql = (optional) if you are running MariaDB in a Docker container
     hachque/phabricator = the name of the image
 
 This assumes that you are using a reverse proxy container (such as `hachque/nginx-autoproxy`) to route HTTP and HTTPS requests to the Phabricator container.  If you are not, and you want to just expose the host's HTTP and HTTPS ports to Phabricator directly, you can add the following options:
