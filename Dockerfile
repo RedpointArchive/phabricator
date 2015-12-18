@@ -15,7 +15,7 @@ RUN zypper --non-interactive rr nodejs
 
 
 # Install requirements
-RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial
+RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter
 
 # The long line below is the expansion of the following shorter line.
 # We track the long line explicitly so we can uninstall the packages only needed for building.
@@ -27,7 +27,7 @@ RUN pecl install apc
 
 # Now we don't need any of the build tools anymore, remove them.
 #RUN zypper --non-interactive remove gcc autoconf automake
-RUN zypper --non-interactive remove autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 make ncurses-devel pcre-devel php5-devel php5-pear pkg-config readline-devel tack xz-devel zlib-devel
+RUN zypper --non-interactive remove autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 ncurses-devel pcre-devel php5-devel php5-pear pkg-config readline-devel tack xz-devel zlib-devel
 
 # Remove cached things taht pecl left in /tmp/
 RUN rm -rf /tmp/*
@@ -59,7 +59,28 @@ USER root
 WORKDIR /
 
 # Clone Let's Encrypt
-RUN git clone git@github.com:letsencrypt/letsencrypt /srv/letsencrypt
+RUN git clone https://github.com/letsencrypt/letsencrypt /srv/letsencrypt
+
+# Install WinRM tool
+RUN zypper --non-interactive in go
+WORKDIR /root/
+RUN git clone https://github.com/masterzen/winrm
+WORKDIR /root/winrm
+RUN mkdir /root/.go
+RUN GOPATH=/root/.go make
+RUN cp /root/.go/bin/winrm /usr/bin/winrm
+RUN chmod a+x /usr/bin/winrm
+RUN zypper --non-interactive rm go make
+WORKDIR /
+
+# Install letsencrypt
+WORKDIR /srv/letsencrypt
+RUN ./letsencrypt-auto --help
+WORKDIR /
+
+# Install PHPExcel
+RUN echo '' >> /etc/php5/fpm/php-fpm.conf
+RUN echo 'php_value[include_path] = "/srv/phabricator/PHPExcel/Classes"' >> /etc/php5/fpm/php-fpm.conf
 
 # Expose Nginx on port 80 and 443
 EXPOSE 80
@@ -102,10 +123,6 @@ RUN chown root:root /etc/phabricator-ssh/*
 # Workaround for https://gist.github.com/porjo/35ea98cb64553c0c718a
 RUN chmod u+s /usr/sbin/postdrop
 RUN chmod u+s /usr/sbin/postqueue
-
-# Install letsencrypt
-WORKDIR /srv/letsencrypt
-RUN ./letsencrypt-auto
 
 # Set /init as the default
 CMD ["/init"]

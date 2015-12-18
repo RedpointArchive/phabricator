@@ -1,9 +1,14 @@
 #!/bin/bash
 
-# Enable HTTP server
-mv /etc/nginx/disabled-server-http.conf /etc/nginx/server-http.conf
+# Create the directory 
+mkdir /etc/nginx/servers
 
-if [ "$LETS_ENCRYPT" == "true" ]; then
+# Enable HTTP server
+mv /etc/nginx/disabled-server-http.conf /etc/nginx/servers/http.conf
+
+if [ -f /config/letsencrypt.config ]; then 
+    . /config/letsencrypt.config
+
     # Let's Encrypt works by querying the web server over HTTP in order
     # to issue the certificates, so we need to start Nginx temporarily
     # now in order for certificates to be issued or renewed.
@@ -25,17 +30,18 @@ if [ "$LETS_ENCRYPT" == "true" ]; then
     ln -s /config/letsencrypt /etc/letsencrypt
 
     # Perform the Let's Encrypt certificate issuance
-    /srv/letsencrypt/letsencrypt-auto certonly --keep --debug --staging --agree-tos --webroot -w /srv/letsencrypt-webroot -e $LETS_ENCRYPT_EMAIL -d $LETS_ENCRYPT_DOMAIN
+    /srv/letsencrypt/letsencrypt-auto certonly --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $LETS_ENCRYPT_EMAIL -d $LETS_ENCRYPT_DOMAIN
 
     # Enable HTTPS using the Let's Encrypt configuration
-    mv /etc/nginx/disabled-server-https-letsencrypt.conf /etc/nginx/server-https-letsencrypt.conf
+    mv /etc/nginx/disabled-server-https-letsencrypt.conf /etc/nginx/servers/https-letsencrypt.conf
 
-    # Link /etc/letsencrypt/installed to /etc/letsencrypt/live/*
-    ln -s /etc/letsencrypt/live/* /etc/letsencrypt/installed
+    # Link /config/letsencrypt/installed to /config/letsencrypt/live/*
+    rm /config/letsencrypt/installed
+    ln -s $(ls -d /config/letsencrypt/live/*) /config/letsencrypt/installed
 
     # Kill Nginx and remove the PID file, we'll start Nginx back up
     # again with HTTPS support later
-    kill -KILL $(</run/nginx.pid)
+    kill -KILL $(pidof nginx)
     rm /run/nginx.pid
 else
     if [ -e /config/cert.pem ]; then
@@ -43,7 +49,7 @@ else
             echo "Enabling SSL due to presence of certificates!"
 
             # Enable HTTPS using the manual configuration
-            mv /etc/nginx/disabled-server-https-manual.conf /etc/nginx/server-https-manual.conf
+            mv /etc/nginx/disabled-server-https-manual.conf /etc/nginx/servers/https-manual.conf
         fi
     fi
 fi

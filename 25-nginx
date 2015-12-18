@@ -8,6 +8,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run Nginx
+kill -KILL $(pidof nginx)
 /usr/sbin/nginx
 
 # Wait for /run/nginx.pid to appear and copy it.
