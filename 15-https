@@ -38,14 +38,19 @@ if [ -f /config/letsencrypt.config ]; then
 
 /srv/letsencrypt/letsencrypt-auto certonly --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $LETS_ENCRYPT_EMAIL -d $LETS_ENCRYPT_DOMAIN
 EOF
-    chmod a+x /etc/cron.monthly/letsencrypt
+    chmod a+x /etc/cron.weekly/letsencrypt
 
     # Enable HTTPS using the Let's Encrypt configuration
     mv /etc/nginx/disabled-server-https-letsencrypt.conf /etc/nginx/servers/https-letsencrypt.conf
 
+    if [ -e /config/script.letsencrypt ]; then
+        echo "Applying post-letsencrypt script..."
+        /config/script.letsencrypt
+    fi
+
     # Link /config/letsencrypt/installed to /config/letsencrypt/live/*
     rm /config/letsencrypt/installed
-    ln -s $(ls -d /config/letsencrypt/live/*) /config/letsencrypt/installed
+    ln -s /config/letsencrypt/live/$LETS_ENCRYPT_DOMAIN /config/letsencrypt/installed
 
     # Kill Nginx and remove the PID file, we'll start Nginx back up
     # again with HTTPS support later
