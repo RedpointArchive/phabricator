@@ -56,12 +56,5 @@ if [ -e /config/script.post ]; then
     /config/script.post
 fi
 
-if [ -e /config/cert.pem ]; then
-    if [ -e /config/cert.key ]; then
-        echo "Enabling SSL due to presence of certificates!"
-        mv /etc/nginx/nginx-ssl.conf /etc/nginx/nginx.conf
-    fi
-fi
-
 popd
 

@@ -13,25 +13,6 @@ RUN zypper --non-interactive ar http://download.opensuse.org/repositories/home:/
 RUN zypper --gpg-auto-import-keys --non-interactive in nodejs-ws
 RUN zypper --non-interactive rr nodejs
 
-# Create nginx user and group
-RUN echo "nginx:x:497:495:user for nginx:/var/lib/nginx:/bin/false" >> /etc/passwd
-RUN echo "nginx:!:495:" >> /etc/group
-
-# Add user
-RUN echo "git:x:2000:2000:user for phabricator:/srv/phabricator:/bin/bash" >> /etc/passwd
-RUN echo "wwwgrp-phabricator:!:2000:nginx" >> /etc/group
-
-# Set up the Phabricator code base
-RUN mkdir /srv/phabricator
-RUN chown git:wwwgrp-phabricator /srv/phabricator
-USER git
-WORKDIR /srv/phabricator
-RUN git clone git://github.com/facebook/libphutil.git
-RUN git clone git://github.com/facebook/arcanist.git
-RUN git clone git://github.com/facebook/phabricator.git
-RUN git clone git://github.com/PHPOffice/PHPExcel.git
-USER root
-WORKDIR /
 
 # Install requirements
 RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial
@@ -51,6 +32,35 @@ RUN zypper --non-interactive remove autoconf automake binutils cpp cpp48 gcc gcc
 # Remove cached things taht pecl left in /tmp/
 RUN rm -rf /tmp/*
 
+# Install a few extra things
+RUN zypper --non-interactive install mariadb-client vim vim-data
+
+# Remove cached things taht pecl left in /tmp/
+RUN rm -rf /tmp/*
+
+# Create nginx user and group
+RUN echo "nginx:x:497:495:user for nginx:/var/lib/nginx:/bin/false" >> /etc/passwd
+RUN echo "nginx:!:495:" >> /etc/group
+
+# Add user
+RUN echo "git:x:2000:2000:user for phabricator:/srv/phabricator:/bin/bash" >> /etc/passwd
+RUN echo "wwwgrp-phabricator:!:2000:nginx" >> /etc/group
+
+# Set up the Phabricator code base
+RUN mkdir /srv/phabricator
+RUN chown git:wwwgrp-phabricator /srv/phabricator
+USER git
+WORKDIR /srv/phabricator
+RUN git clone git://github.com/facebook/libphutil.git
+RUN git clone git://github.com/facebook/arcanist.git
+RUN git clone --progress git://github.com/facebook/phabricator.git
+RUN git clone --progress git://github.com/PHPOffice/PHPExcel.git
+USER root
+WORKDIR /
+
+# Clone Let's Encrypt
+RUN git clone git@github.com:letsencrypt/letsencrypt /srv/letsencrypt
+
 # Expose Nginx on port 80 and 443
 EXPOSE 80
 EXPOSE 443
@@ -64,8 +74,11 @@ EXPOSE 24
 
 # Add files
 ADD nginx.conf /etc/nginx/nginx.conf
-ADD nginx-ssl.conf /etc/nginx/nginx-ssl.conf
+ADD server-http.conf /etc/nginx/disabled-server-http.conf
+ADD server-https-letsencrypt.conf /etc/nginx/disabled-server-https-letsencrypt.conf
+ADD server-https-manual.conf /etc/nginx/disabled-server-https-manual.conf
 ADD fastcgi.conf /etc/nginx/fastcgi.conf
+ADD 15-https /etc/init.simple/15-https
 ADD 25-nginx /etc/init.simple/25-nginx
 ADD 25-php-fpm /etc/init.simple/25-php-fpm
 ADD 20-postfix /etc/init.simple/20-postfix
@@ -89,6 +102,10 @@ RUN chown root:root /etc/phabricator-ssh/*
 # Workaround for https://gist.github.com/porjo/35ea98cb64553c0c718a
 RUN chmod u+s /usr/sbin/postdrop
 RUN chmod u+s /usr/sbin/postqueue
+
+# Install letsencrypt
+WORKDIR /srv/letsencrypt
+RUN ./letsencrypt-auto
 
 # Set /init as the default
 CMD ["/init"]
