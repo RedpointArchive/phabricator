@@ -13,7 +13,6 @@ RUN zypper --non-interactive ar http://download.opensuse.org/repositories/home:/
 RUN zypper --gpg-auto-import-keys --non-interactive in nodejs-ws
 RUN zypper --non-interactive rr nodejs
 
-
 # Install requirements
 RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter
 
@@ -34,6 +33,9 @@ RUN rm -rf /tmp/*
 
 # Install a few extra things
 RUN zypper --non-interactive install mariadb-client vim vim-data
+
+# Force reinstall cronie
+RUN zypper --non-interactive install -f cronie
 
 # Remove cached things taht pecl left in /tmp/
 RUN rm -rf /tmp/*
@@ -106,6 +108,7 @@ ADD 20-postfix /etc/init.simple/20-postfix
 ADD 10-boot-conf /etc/init.simple/10-boot-conf
 ADD 35-phd /etc/init.simple/35-phd
 ADD 40-aphlict /etc/init.simple/40-aphlict
+ADD 50-cronie /etc/init.simple/50-cronie
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD php.ini /etc/php5/fpm/php.ini
 

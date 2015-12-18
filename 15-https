@@ -32,6 +32,14 @@ if [ -f /config/letsencrypt.config ]; then
     # Perform the Let's Encrypt certificate issuance
     /srv/letsencrypt/letsencrypt-auto certonly --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $LETS_ENCRYPT_EMAIL -d $LETS_ENCRYPT_DOMAIN
 
+    # Add Let's Encrypt issuance to cron.monthly
+    cat >/etc/cron.weekly/letsencrypt <<EOF
+#!bin/bash
+
+/srv/letsencrypt/letsencrypt-auto certonly --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $LETS_ENCRYPT_EMAIL -d $LETS_ENCRYPT_DOMAIN
+EOF
+    chmod a+x /etc/cron.monthly/letsencrypt
+
     # Enable HTTPS using the Let's Encrypt configuration
     mv /etc/nginx/disabled-server-https-letsencrypt.conf /etc/nginx/servers/https-letsencrypt.conf
 
