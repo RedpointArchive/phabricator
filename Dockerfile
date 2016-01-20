@@ -112,6 +112,9 @@ ADD 50-cronie /etc/init.simple/50-cronie
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD php.ini /etc/php5/fpm/php.ini
 
+# [chmod] init scripts
+RUN chmod -R 755 /etc/init.simple
+
 # Move the default SSH to port 24
 RUN echo "" >> /etc/ssh/sshd_config
 RUN echo "Port 24" >> /etc/ssh/sshd_config
