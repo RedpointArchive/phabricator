@@ -13,8 +13,12 @@ RUN zypper --non-interactive ar http://download.opensuse.org/repositories/home:/
 RUN zypper --gpg-auto-import-keys --non-interactive in nodejs-ws
 RUN zypper --non-interactive rr nodejs
 
+# Update PHP repository
+RUN zypper --non-interactive ar http://download.opensuse.org/repositories/server:/php/openSUSE_13.1/server:php.repo
+RUN zypper --non-interactive ref
+
 # Install requirements
-RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter
+RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter php5-opcache
 
 # The long line below is the expansion of the following shorter line.
 # We track the long line explicitly so we can uninstall the packages only needed for building.
