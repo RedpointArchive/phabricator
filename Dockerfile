@@ -74,18 +74,6 @@ WORKDIR /
 # Clone Let's Encrypt
 RUN git clone https://github.com/letsencrypt/letsencrypt /srv/letsencrypt
 
-# Install WinRM tool
-RUN zypper --non-interactive in go
-WORKDIR /root/
-RUN git clone https://github.com/masterzen/winrm
-WORKDIR /root/winrm
-RUN mkdir /root/.go
-RUN GOPATH=/root/.go make
-RUN cp /root/.go/bin/winrm /usr/bin/winrm
-RUN chmod a+x /usr/bin/winrm
-RUN zypper --non-interactive rm go make
-WORKDIR /
-
 # Install letsencrypt
 WORKDIR /srv/letsencrypt
 RUN ./letsencrypt-auto --help
