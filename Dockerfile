@@ -31,6 +31,11 @@ RUN zypper --non-interactive install autoconf automake binutils cpp cpp48 gcc gc
 # pecl runs configure, make, and copies the result into the local php extension path
 RUN printf "\n" | pecl install apcu-4.0.10
 
+# Install let`s encrypt
+RUN git clone https://github.com/letsencrypt/letsencrypt /srv/letsencrypt
+WORKDIR /srv/letsencrypt
+RUN ./letsencrypt-auto --help
+
 # Now we don't need any of the build tools anymore, remove them.
 #RUN zypper --non-interactive remove gcc autoconf automake
 RUN zypper --non-interactive remove autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 ncurses-devel pcre-devel php5-devel php5-pear pkg-config readline-devel tack xz-devel zlib-devel
@@ -69,14 +74,6 @@ RUN git clone git://github.com/facebook/arcanist.git
 RUN git clone --progress git://github.com/facebook/phabricator.git
 RUN git clone --progress git://github.com/PHPOffice/PHPExcel.git
 USER root
-WORKDIR /
-
-# Clone Let's Encrypt
-RUN git clone https://github.com/letsencrypt/letsencrypt /srv/letsencrypt
-
-# Install letsencrypt
-WORKDIR /srv/letsencrypt
-RUN ./letsencrypt-auto --help
 WORKDIR /
 
 # Install PHPExcel
