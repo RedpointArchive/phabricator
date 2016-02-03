@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Run Postfix
-export SYSTEMD_NO_WRAP=true
-/etc/init.d/postfix start
-
