@@ -15,6 +15,9 @@ RUN zypper --non-interactive rr nodejs
 
 # Update PHP repository
 RUN zypper --non-interactive ar http://download.opensuse.org/repositories/server:/php/openSUSE_13.1/server:php.repo
+
+# Update NGINX repository (1.9.10)
+RUN zypper --non-interactive ar -f http://download.opensuse.org/repositories/home:/Miuku/openSUSE_13.1/home:Miuku.repo
 RUN zypper --non-interactive --gpg-auto-import-keys ref -f
 
 # Install requirements
