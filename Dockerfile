@@ -13,8 +13,15 @@ RUN zypper --non-interactive ar http://download.opensuse.org/repositories/home:/
 RUN zypper --gpg-auto-import-keys --non-interactive in nodejs-ws
 RUN zypper --non-interactive rr nodejs
 
+# Update PHP repository
+RUN zypper --non-interactive ar http://download.opensuse.org/repositories/server:/php/openSUSE_13.1/server:php.repo
+
+# Update NGINX repository (1.9.10)
+RUN zypper --non-interactive ar -f http://download.opensuse.org/repositories/home:/Miuku/openSUSE_13.1/home:Miuku.repo
+RUN zypper --non-interactive --gpg-auto-import-keys ref -f
+
 # Install requirements
-RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter
+RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter php5-opcache ImageMagick
 
 # The long line below is the expansion of the following shorter line.
 # We track the long line explicitly so we can uninstall the packages only needed for building.
@@ -22,7 +29,12 @@ RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl
 RUN zypper --non-interactive install autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 make ncurses-devel pcre-devel php5-devel php5-pear php5-zlib pkg-config readline-devel tack xz-devel zlib-devel
 
 # pecl runs configure, make, and copies the result into the local php extension path
-RUN pecl install apc
+RUN printf "\n" | pecl install apcu-4.0.10
+
+# Install let`s encrypt
+RUN git clone https://github.com/letsencrypt/letsencrypt /srv/letsencrypt
+WORKDIR /srv/letsencrypt
+RUN ./letsencrypt-auto --help
 
 # Now we don't need any of the build tools anymore, remove them.
 #RUN zypper --non-interactive remove gcc autoconf automake
@@ -48,6 +60,10 @@ RUN echo "nginx:!:495:" >> /etc/group
 RUN echo "git:x:2000:2000:user for phabricator:/srv/phabricator:/bin/bash" >> /etc/passwd
 RUN echo "wwwgrp-phabricator:!:2000:nginx" >> /etc/group
 
+# Set up log folders for PHP
+RUN mkdir -p /var/log/php
+RUN chown -R git:wwwgrp-phabricator /var/log/php
+
 # Set up the Phabricator code base
 RUN mkdir /srv/phabricator
 RUN chown git:wwwgrp-phabricator /srv/phabricator
@@ -58,26 +74,6 @@ RUN git clone git://github.com/facebook/arcanist.git
 RUN git clone --progress git://github.com/facebook/phabricator.git
 RUN git clone --progress git://github.com/PHPOffice/PHPExcel.git
 USER root
-WORKDIR /
-
-# Clone Let's Encrypt
-RUN git clone https://github.com/letsencrypt/letsencrypt /srv/letsencrypt
-
-# Install WinRM tool
-RUN zypper --non-interactive in go
-WORKDIR /root/
-RUN git clone https://github.com/masterzen/winrm
-WORKDIR /root/winrm
-RUN mkdir /root/.go
-RUN GOPATH=/root/.go make
-RUN cp /root/.go/bin/winrm /usr/bin/winrm
-RUN chmod a+x /usr/bin/winrm
-RUN zypper --non-interactive rm go make
-WORKDIR /
-
-# Install letsencrypt
-WORKDIR /srv/letsencrypt
-RUN ./letsencrypt-auto --help
 WORKDIR /
 
 # Install PHPExcel
@@ -104,7 +100,6 @@ ADD fastcgi.conf /etc/nginx/fastcgi.conf
 ADD 15-https /etc/init.simple/15-https
 ADD 25-nginx /etc/init.simple/25-nginx
 ADD 25-php-fpm /etc/init.simple/25-php-fpm
-ADD 20-postfix /etc/init.simple/20-postfix
 ADD 10-boot-conf /etc/init.simple/10-boot-conf
 ADD 35-phd /etc/init.simple/35-phd
 ADD 40-aphlict /etc/init.simple/40-aphlict
