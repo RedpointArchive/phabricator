@@ -55,6 +55,10 @@ RUN echo "nginx:!:495:" >> /etc/group
 RUN echo "git:x:2000:2000:user for phabricator:/srv/phabricator:/bin/bash" >> /etc/passwd
 RUN echo "wwwgrp-phabricator:!:2000:nginx" >> /etc/group
 
+# Set up log folders for PHP
+RUN mkdir -p /var/log/php
+RUN chown -R git:wwwgrp-phabricator /var/log/php
+
 # Set up the Phabricator code base
 RUN mkdir /srv/phabricator
 RUN chown git:wwwgrp-phabricator /srv/phabricator
