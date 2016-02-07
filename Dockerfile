@@ -1,38 +1,40 @@
 FROM hachque/systemd-none
 
-# Update base image
-RUN zypper --non-interactive patch || true
-# Update again in case package manager was updated.
-RUN zypper --non-interactive patch
+# Remove boot patching
+RUN rm /etc/init.simple/00-patch
+
+# Update images
+RUN zypper --non-interactive up --force-resolution || true
+RUN zypper --non-interactive up --force-resolution || true
 
 # Install requirements
-RUN zypper --non-interactive in git
+RUN zypper --non-interactive in --force-resolution git
 
 # Install NodeJS + WebSockets module
 RUN zypper --non-interactive ar http://download.opensuse.org/repositories/home:/marec2000:/nodejs/openSUSE_13.1/ nodejs
-RUN zypper --gpg-auto-import-keys --non-interactive in nodejs-ws
+RUN zypper --gpg-auto-import-keys --non-interactive in --force-resolution nodejs-ws
 RUN zypper --non-interactive rr nodejs
 
 # Install requirements
-RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter
+RUN zypper --non-interactive in --force-resolution nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter
 
 # The long line below is the expansion of the following shorter line.
 # We track the long line explicitly so we can uninstall the packages only needed for building.
 #RUN zypper --non-interactive install php5-devel php5-pear gcc autoconf make
-RUN zypper --non-interactive install autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 make ncurses-devel pcre-devel php5-devel php5-pear php5-zlib pkg-config readline-devel tack xz-devel zlib-devel
+RUN zypper --non-interactive install --force-resolution autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 make ncurses-devel pcre-devel php5-devel php5-pear php5-zlib pkg-config readline-devel tack xz-devel zlib-devel
 
 # pecl runs configure, make, and copies the result into the local php extension path
 RUN pecl install apc
 
 # Now we don't need any of the build tools anymore, remove them.
 #RUN zypper --non-interactive remove gcc autoconf automake
-RUN zypper --non-interactive remove autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 ncurses-devel pcre-devel php5-devel php5-pear pkg-config readline-devel tack xz-devel zlib-devel
+RUN zypper --non-interactive remove --force-resolution autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 ncurses-devel pcre-devel php5-devel php5-pear pkg-config readline-devel tack xz-devel zlib-devel
 
 # Remove cached things taht pecl left in /tmp/
 RUN rm -rf /tmp/*
 
 # Install a few extra things
-RUN zypper --non-interactive install mariadb-client vim vim-data
+RUN zypper --non-interactive install --force-resolution mariadb-client vim vim-data
 
 # Force reinstall cronie
 RUN zypper --non-interactive install -f cronie
@@ -64,7 +66,7 @@ WORKDIR /
 RUN git clone https://github.com/letsencrypt/letsencrypt /srv/letsencrypt
 
 # Install WinRM tool
-RUN zypper --non-interactive in go
+RUN zypper --non-interactive in --force-resolution go
 WORKDIR /root/
 RUN git clone https://github.com/masterzen/winrm
 WORKDIR /root/winrm
@@ -72,7 +74,7 @@ RUN mkdir /root/.go
 RUN GOPATH=/root/.go make
 RUN cp /root/.go/bin/winrm /usr/bin/winrm
 RUN chmod a+x /usr/bin/winrm
-RUN zypper --non-interactive rm go make
+RUN zypper --non-interactive rm --force-resolution go make
 WORKDIR /
 
 # Install letsencrypt
