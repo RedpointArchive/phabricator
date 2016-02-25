@@ -32,7 +32,7 @@ if [ -f /config/letsencrypt.config ]; then
     # Perform the Let's Encrypt certificate issuance
     /srv/letsencrypt/letsencrypt-auto certonly --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $LETS_ENCRYPT_EMAIL -d $LETS_ENCRYPT_DOMAIN
 
-    # Add Let's Encrypt issuance to cron.monthly
+    # Add Let's Encrypt issuance to cron.weekly
     cat >/etc/cron.weekly/letsencrypt <<EOF
 #!bin/bash
 
