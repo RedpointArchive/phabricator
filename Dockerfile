@@ -79,7 +79,7 @@ WORKDIR /
 
 # Install letsencrypt
 WORKDIR /srv/letsencrypt
-RUN ./letsencrypt-auto --help
+RUN ./letsencrypt-auto-source/letsencrypt-auto --help
 WORKDIR /
 
 # Install PHPExcel
