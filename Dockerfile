@@ -1,16 +1,18 @@
 FROM hachque/systemd-none
 
-# Update base image
-RUN zypper --non-interactive patch || true
-# Update again in case package manager was updated.
-RUN zypper --non-interactive patch
+# Remove boot patching
+RUN rm /etc/init.simple/00-patch
+
+# Update image
+RUN zypper --non-interactive up --force-resolution || true
+RUN zypper --non-interactive up --force-resolution || true
 
 # Install requirements
-RUN zypper --non-interactive in git
+RUN zypper --non-interactive in --force-resolution git
 
 # Install NodeJS + WebSockets module
 RUN zypper --non-interactive ar http://download.opensuse.org/repositories/home:/marec2000:/nodejs/openSUSE_13.1/ nodejs
-RUN zypper --gpg-auto-import-keys --non-interactive in nodejs-ws
+RUN zypper --gpg-auto-import-keys --non-interactive in --force-resolution nodejs-ws
 RUN zypper --non-interactive rr nodejs
 
 # Update PHP repository
@@ -21,12 +23,12 @@ RUN zypper --non-interactive ar -f http://download.opensuse.org/repositories/hom
 RUN zypper --non-interactive --gpg-auto-import-keys ref -f
 
 # Install requirements
-RUN zypper --non-interactive in nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter php5-opcache ImageMagick
+RUN zypper --non-interactive in --force-resolution nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter php5-opcache ImageMagick
 
 # The long line below is the expansion of the following shorter line.
 # We track the long line explicitly so we can uninstall the packages only needed for building.
 #RUN zypper --non-interactive install php5-devel php5-pear gcc autoconf make
-RUN zypper --non-interactive install autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 make ncurses-devel pcre-devel php5-devel php5-pear php5-zlib pkg-config readline-devel tack xz-devel zlib-devel
+RUN zypper --non-interactive install --force-resolution autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 make ncurses-devel pcre-devel php5-devel php5-pear php5-zlib pkg-config readline-devel tack xz-devel zlib-devel
 
 # pecl runs configure, make, and copies the result into the local php extension path
 RUN printf "\n" | pecl install apcu-4.0.10
@@ -44,7 +46,7 @@ RUN zypper --non-interactive remove autoconf automake binutils cpp cpp48 gcc gcc
 RUN rm -rf /tmp/*
 
 # Install a few extra things
-RUN zypper --non-interactive install mariadb-client vim vim-data
+RUN zypper --non-interactive install --force-resolution mariadb-client vim vim-data
 
 # Force reinstall cronie
 RUN zypper --non-interactive install -f cronie
@@ -88,16 +90,10 @@ EXPOSE 443
 EXPOSE 843
 EXPOSE 22280
 
-# Expose SSH port 24 (Git SSH will be on 22, regular SSH on 24)
-EXPOSE 24
-
 # Add files
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD server-http.conf /etc/nginx/disabled-server-http.conf
-ADD server-https-letsencrypt.conf /etc/nginx/disabled-server-https-letsencrypt.conf
-ADD server-https-manual.conf /etc/nginx/disabled-server-https-manual.conf
 ADD fastcgi.conf /etc/nginx/fastcgi.conf
-ADD 15-https /etc/init.simple/15-https
 ADD 25-nginx /etc/init.simple/25-nginx
 ADD 25-php-fpm /etc/init.simple/25-php-fpm
 ADD 10-boot-conf /etc/init.simple/10-boot-conf
@@ -120,10 +116,6 @@ ADD sshd_config.phabricator /etc/phabricator-ssh/sshd_config.phabricator
 ADD 45-phabricator-ssh /etc/init.simple/45-phabricator-ssh
 ADD phabricator-ssh-hook.sh /etc/phabricator-ssh/phabricator-ssh-hook.sh
 RUN chown root:root /etc/phabricator-ssh/*
-
-# Workaround for https://gist.github.com/porjo/35ea98cb64553c0c718a
-RUN chmod u+s /usr/sbin/postdrop
-RUN chmod u+s /usr/sbin/postqueue
 
 # Set /init as the default
 CMD ["/init"]
