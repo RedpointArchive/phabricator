@@ -117,5 +117,8 @@ ADD 45-phabricator-ssh /etc/init.simple/45-phabricator-ssh
 ADD phabricator-ssh-hook.sh /etc/phabricator-ssh/phabricator-ssh-hook.sh
 RUN chown root:root /etc/phabricator-ssh/*
 
+# Fix because PHP is looking at the wrong place for its extensions
+RUN mkdir -p /usr/lib/php/modules && cp -r /usr/lib64/php5/extensions/* /usr/lib/php/modules/
+
 # Set /init as the default
 CMD ["/init"]
