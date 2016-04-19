@@ -1,8 +1,5 @@
 FROM hachque/systemd-none
 
-# Remove boot patching
-RUN rm /etc/init.simple/00-patch
-
 # Update images
 RUN zypper --non-interactive up --force-resolution || true
 RUN zypper --non-interactive up --force-resolution || true
