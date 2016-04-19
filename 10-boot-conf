@@ -3,58 +3,131 @@
 set -e
 set -x
 
-pushd /srv/phabricator/phabricator
+# If this is a derived (baked) image, skip all of this logic.
+if [ -f /baked ]; then
+  exit 0
+fi
 
-if [ -e /config/script.pre ]; then
-    echo "Applying pre-configuration script..."
-    /config/script.pre
-else
-    echo "+++++ MISSING CONFIGURATION +++++"
-    echo ""
-    echo "You must specify a preconfiguration script for "
-    echo "this Docker image.  To do so: "
-    echo ""
-    echo "  1) Create a 'script.pre' file in a directory "
-    echo "     called 'config', somewhere on the host. "
-    echo ""
-    echo "  2) Run this Docker instance again with "
-    echo "     -v path/to/config:/config passed as an "
-    echo "     argument."
-    echo ""
-    echo "+++++ BOOT FAILED! +++++"
+# Read environment variables and validate configuration
+if [ "$MYSQL_LINKED_CONTAINER" != "" ]; then
+  MYSQL_HOST_VARIABLE="${MYSQL_LINKED_CONTAINER}_PORT_3306_TCP_ADDR"
+  MYSQL_HOST="${!MYSQL_HOST_VARIABLE}"
+  MYSQL_PORT_VARIABLE="${MYSQL_LINKED_CONTAINER}_PORT_3306_TCP_PORT"
+  MYSQL_PORT="${!MYSQL_PORT_VARIABLE}"
+  unset MYSQL_HOST_VARIABLE
+  unset MYSQL_PORT_VARIABLE
+fi
+
+SSL_TYPE=none
+if [ "$ENABLE_SSL_MANUAL" == "true" ]; then
+  if [ "$ENABLE_SSL_LETS_ENCRYPT" == "true" ]; then
+    echo "Error: You can't enable both manual and Let's Encrypt based SSL."
     exit 1
+  fi
+
+  SSL_TYPE=manual
+elif [ "$ENABLE_SSL_LETS_ENCRYPT" == "true" ]; then
+  SSL_TYPE=letsencrypt
 fi
 
-popd
-
-echo "Upgrading Phabricator..."
-
-pushd /srv/phabricator/libphutil
-git pull --rebase
-popd
-
-pushd /srv/phabricator/arcanist
-git pull --rebase
-popd
-
-pushd /srv/phabricator/phabricator
-git pull --rebase
-popd
-
-if [ -e /config/script.premig ]; then
-    echo "Applying pre-migration script..."
-    /config/script.premig
+if [ "$OVERRIDE_PHABRICATOR_URI" != "" ] ||
+   [ "$OVERRIDE_PHABRICATOR_BRANCH" != "" ] ||
+   [ "$OVERRIDE_ARCANIST_URI" != "" ] ||
+   [ "$OVERRIDE_ARCANIST_BRANCH" != "" ] ||
+   [ "$OVERRIDE_LIBPHUTIL_URI" != "" ] ||
+   [ "$OVERRIDE_LIBPHUTIL_BRANCH" != "" ]; then
+  ENABLE_UPDATE_ON_START=true
 fi
 
-echo "Applying any pending DB schema upgrades..."
+if [ -f /config/script.pre ]; then
+  SCRIPT_BEFORE_UPDATE=/config/script.pre
+fi
+
+if [ -f /config/script.premig ]; then
+  SCRIPT_BEFORE_MIGRATION=/config/script.premig
+fi
+
+if [ -f /config/script.post ]; then
+  SCRIPT_AFTER_MIGRATION=/config/script.post
+fi
+
+cat >/config.saved <<EOF
+OVERRIDE_PHABRICATOR_URI="$OVERRIDE_PHABRICATOR_URI"
+OVERRIDE_PHABRICATOR_BRANCH="$OVERRIDE_PHABRICATOR_BRANCH"
+OVERRIDE_ARCANIST_URI="$OVERRIDE_ARCANIST_URI"
+OVERRIDE_ARCANIST_BRANCH="$OVERRIDE_ARCANIST_BRANCH"
+OVERRIDE_LIBPHUTIL_URI="$OVERRIDE_LIBPHUTIL_URI"
+OVERRIDE_LIBPHUTIL_BRANCH="$OVERRIDE_LIBPHUTIL_BRANCH"
+PHABRICATOR_HOST="$PHABRICATOR_HOST"
+MYSQL_HOST="$MYSQL_HOST"
+MYSQL_PORT="$MYSQL_PORT"
+MYSQL_USER="$MYSQL_USER"
+MYSQL_PASS="$MYSQL_PASS"
+ENABLE_APCU="$ENABLE_APCU"
+ENABLE_UPDATE_ON_START="$ENABLE_UPDATE_ON_START"
+SSL_TYPE="$SSL_TYPE"
+SSL_CERTIFICATE="$SSL_CERTIFICATE"
+SSL_PRIVATE_KEY="$SSL_PRIVATE_KEY"
+SCRIPT_BEFORE_UPDATE="$SCRIPT_BEFORE_UPDATE"
+SCRIPT_BEFORE_MIGRATION="$SCRIPT_BEFORE_MIGRATION"
+SCRIPT_AFTER_MIGRATION="$SCRIPT_AFTER_MIGRATION"
+SCRIPT_BEFORE_DAEMONS="$SCRIPT_BEFORE_DAEMONS"
+SCRIPT_AFTER_DAEMONS="$SCRIPT_AFTER_DAEMONS"
+EOF
+
+# Reload configuration
+source /config.saved
+
+# Set up Phabricator
+if [ "$SCRIPT_BEFORE_UPDATE" != "" ]; then
+  pushd /srv/phabricator/phabricator
+  $SCRIPT_BEFORE_UPDATE
+  popd
+fi
+
+if [ "$ENABLE_UPDATE_ON_START" == "true" ]; then
+  pushd /srv/phabricator/libphutil
+  if [ "$OVERRIDE_LIBPHUTIL_URI" != "" ]; then
+    git remote set-url origin $OVERRIDE_LIBPHUTIL_URI
+  fi
+  git fetch --all
+  if [ "$OVERRIDE_LIBPHUTIL_BRANCH" != "" ]; then
+    git checkout $OVERRIDE_LIBPHUTIL_BRANCH
+  fi
+  popd
+
+  pushd /srv/phabricator/arcanist
+  if [ "$OVERRIDE_ARCANIST_URI" != "" ]; then
+    git remote set-url origin $OVERRIDE_ARCANIST_URI
+  fi
+  git fetch --all
+  if [ "$OVERRIDE_ARCANIST_BRANCH" != "" ]; then
+    git checkout $OVERRIDE_ARCANIST_BRANCH
+  fi
+  popd
+
+  pushd /srv/phabricator/phabricator
+  if [ "$OVERRIDE_PHABRICATOR_URI" != "" ]; then
+    git remote set-url origin $OVERRIDE_PHABRICATOR_URI
+  fi
+  git fetch --all
+  if [ "$OVERRIDE_PHABRICATOR_BRANCH" != "" ]; then
+    git checkout $OVERRIDE_PHABRICATOR_BRANCH
+  fi
+  popd
+fi
+
+if [ "$SCRIPT_BEFORE_MIGRATION" != "" ]; then
+  pushd /srv/phabricator/phabricator
+  $SCRIPT_BEFORE_MIGRATION
+  popd
+fi
+
 /srv/phabricator/phabricator/bin/storage upgrade --force
 
-pushd /srv/phabricator/phabricator
-
-if [ -e /config/script.post ]; then
-    echo "Applying post-configuration script..."
-    /config/script.post
+if [ "$SCRIPT_AFTER_MIGRATION" != "" ]; then
+  pushd /srv/phabricator/phabricator
+  $SCRIPT_AFTER_MIGRATION
+  popd
 fi
-
-popd
 
