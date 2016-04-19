@@ -8,7 +8,7 @@ zypper --non-interactive ar http://download.opensuse.org/repositories/devel:/lan
 zypper --non-interactive ar http://download.opensuse.org/repositories/home:/marec2000:/nodejs/openSUSE_Leap_42.1/ nodejs
 
 # Install requirements
-zypper --gpg-auto-import-keys --non-interactive in --force-resolution nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter nodejs-ws git php5-opcache ImageMagick
+zypper --gpg-auto-import-keys --non-interactive in --force-resolution nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-ctype php5-zip php5-sockets which python-Pygments nodejs ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo subversion mercurial php5-xmlwriter nodejs-ws git php5-opcache ImageMagick postfix
 
 # Build and install APCu
 zypper --non-interactive install --force-resolution autoconf automake binutils cpp cpp48 gcc gcc48 glibc-devel libasan0 libatomic1 libcloog-isl4 libgomp1 libisl10 libitm1 libltdl7 libmpc3 libmpfr4 libpcre16-0 libpcrecpp0 libpcreposix0 libstdc++-devel libstdc++48-devel libtool libtsan0 libxml2-devel libxml2-tools linux-glibc-devel m4 make ncurses-devel pcre-devel php5-devel php5-pear php5-zlib pkg-config readline-devel tack xz-devel zlib-devel
@@ -31,6 +31,7 @@ mv server-http.conf /etc/nginx/disabled-server-http.conf
 mv server-https-letsencrypt.conf /etc/nginx/disabled-server-https-letsencrypt.conf
 mv server-https-manual.conf /etc/nginx/disabled-server-https-manual.conf
 mv fastcgi.conf /etc/nginx/fastcgi.conf
+mkdir /etc/init.simple
 mv 15-https /etc/init.simple/15-https
 mv 25-nginx /etc/init.simple/25-nginx
 mv 25-php-fpm /etc/init.simple/25-php-fpm
@@ -41,6 +42,7 @@ mv 40-aphlict /etc/init.simple/40-aphlict
 mv 50-cronie /etc/init.simple/50-cronie
 mv php-fpm.conf /etc/php5/fpm/php-fpm.conf
 mv php.ini /etc/php5/fpm/php.ini
+mkdir /etc/phabricator-ssh
 mv sshd_config.phabricator /etc/phabricator-ssh/sshd_config.phabricator
 mv 45-phabricator-ssh /etc/init.simple/45-phabricator-ssh
 mv phabricator-ssh-hook.sh /etc/phabricator-ssh/phabricator-ssh-hook.sh
@@ -58,10 +60,10 @@ echo "wwwgrp-phabricator:!:2000:nginx" >> /etc/group
 mkdir /srv/phabricator
 chown git:wwwgrp-phabricator /srv/phabricator
 cd /srv/phabricator
-su -u git git clone https://www.github.com/phacility/libphutil.git /srv/phabricator/libphutil
-su -u git git clone https://www.github.com/phacility/arcanist.git /srv/phabricator/arcanist
-su -u git git clone https://www.github.com/phacility/phabricator.git /srv/phabricator/phabricator
-su -u git git clone https://www.github.com/PHPOffice/PHPExcel.git /srv/phabricator/PHPExcel
+sudo -u git git clone https://www.github.com/phacility/libphutil.git /srv/phabricator/libphutil
+sudo -u git git clone https://www.github.com/phacility/arcanist.git /srv/phabricator/arcanist
+sudo -u git git clone https://www.github.com/phacility/phabricator.git /srv/phabricator/phabricator
+sudo -u git git clone https://www.github.com/PHPOffice/PHPExcel.git /srv/phabricator/PHPExcel
 cd /
 
 # Clone Let's Encrypt
@@ -82,7 +84,6 @@ echo "" >> /etc/ssh/sshd_config
 echo "Port 24" >> /etc/ssh/sshd_config
 
 # Configure Phabricator SSH service
-mkdir /etc/phabricator-ssh
 chown root:root /etc/phabricator-ssh/*
 
 # Workaround for https://gist.github.com/porjo/35ea98cb64553c0c718a
