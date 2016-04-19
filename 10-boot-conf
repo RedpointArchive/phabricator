@@ -18,16 +18,12 @@ if [ "$MYSQL_LINKED_CONTAINER" != "" ]; then
   unset MYSQL_PORT_VARIABLE
 fi
 
-SSL_TYPE=none
-if [ "$ENABLE_SSL_MANUAL" == "true" ]; then
-  if [ "$ENABLE_SSL_LETS_ENCRYPT" == "true" ]; then
-    echo "Error: You can't enable both manual and Let's Encrypt based SSL."
-    exit 1
-  fi
+if [ "$MYSQL_STORAGE_NAMESPACE" == "" ]; then
+  MYSQL_STORAGE_NAMEPACE=phabricator
+fi
 
-  SSL_TYPE=manual
-elif [ "$ENABLE_SSL_LETS_ENCRYPT" == "true" ]; then
-  SSL_TYPE=letsencrypt
+if [ "$SSL_TYPE" == "" ]; then
+  SSL_TYPE=none
 fi
 
 if [ "$OVERRIDE_PHABRICATOR_URI" != "" ] ||
@@ -51,6 +47,10 @@ if [ -f /config/script.post ]; then
   SCRIPT_AFTER_MIGRATION=/config/script.post
 fi
 
+if [ -f /config/script.letsencrypt ]; then
+  SCRIPT_AFTER_LETS_ENCRYPT=/config/script.letsencrypt
+fi
+
 cat >/config.saved <<EOF
 OVERRIDE_PHABRICATOR_URI="$OVERRIDE_PHABRICATOR_URI"
 OVERRIDE_PHABRICATOR_BRANCH="$OVERRIDE_PHABRICATOR_BRANCH"
@@ -63,14 +63,17 @@ MYSQL_HOST="$MYSQL_HOST"
 MYSQL_PORT="$MYSQL_PORT"
 MYSQL_USER="$MYSQL_USER"
 MYSQL_PASS="$MYSQL_PASS"
+MYSQL_STORAGE_NAMESPACE="$MYSQL_STORAGE_NAMESPACE"
 ENABLE_APCU="$ENABLE_APCU"
 ENABLE_UPDATE_ON_START="$ENABLE_UPDATE_ON_START"
 SSL_TYPE="$SSL_TYPE"
 SSL_CERTIFICATE="$SSL_CERTIFICATE"
 SSL_PRIVATE_KEY="$SSL_PRIVATE_KEY"
+SSL_EMAIL="$SSL_EMAIL"
 SCRIPT_BEFORE_UPDATE="$SCRIPT_BEFORE_UPDATE"
 SCRIPT_BEFORE_MIGRATION="$SCRIPT_BEFORE_MIGRATION"
 SCRIPT_AFTER_MIGRATION="$SCRIPT_AFTER_MIGRATION"
+SCRIPT_AFTER_LETS_ENCRYPT="$SCRIPT_AFTER_LETS_ENCRYPT"
 SCRIPT_BEFORE_DAEMONS="$SCRIPT_BEFORE_DAEMONS"
 SCRIPT_AFTER_DAEMONS="$SCRIPT_AFTER_DAEMONS"
 EOF
@@ -88,40 +91,74 @@ fi
 if [ "$ENABLE_UPDATE_ON_START" == "true" ]; then
   pushd /srv/phabricator/libphutil
   if [ "$OVERRIDE_LIBPHUTIL_URI" != "" ]; then
-    git remote set-url origin $OVERRIDE_LIBPHUTIL_URI
+    sudo -u git git remote set-url origin $OVERRIDE_LIBPHUTIL_URI
   fi
-  git fetch --all
+  sudo -u git git fetch --all
   if [ "$OVERRIDE_LIBPHUTIL_BRANCH" != "" ]; then
-    git checkout $OVERRIDE_LIBPHUTIL_BRANCH
+    sudo -u git git checkout $OVERRIDE_LIBPHUTIL_BRANCH
+  else
+    sudo -u git git pull
   fi
   popd
 
   pushd /srv/phabricator/arcanist
   if [ "$OVERRIDE_ARCANIST_URI" != "" ]; then
-    git remote set-url origin $OVERRIDE_ARCANIST_URI
+    sudo -u git git remote set-url origin $OVERRIDE_ARCANIST_URI
   fi
-  git fetch --all
+  sudo -u git git fetch --all
   if [ "$OVERRIDE_ARCANIST_BRANCH" != "" ]; then
-    git checkout $OVERRIDE_ARCANIST_BRANCH
+    sudo -u git git checkout $OVERRIDE_ARCANIST_BRANCH
+  else
+    sudo -u git git pull
   fi
   popd
 
   pushd /srv/phabricator/phabricator
   if [ "$OVERRIDE_PHABRICATOR_URI" != "" ]; then
-    git remote set-url origin $OVERRIDE_PHABRICATOR_URI
+    sudo -u git git remote set-url origin $OVERRIDE_PHABRICATOR_URI
   fi
-  git fetch --all
+  sudo -u git git fetch --all
   if [ "$OVERRIDE_PHABRICATOR_BRANCH" != "" ]; then
-    git checkout $OVERRIDE_PHABRICATOR_BRANCH
+    sudo -u git git checkout $OVERRIDE_PHABRICATOR_BRANCH
+  else
+    sudo -u git git pull
   fi
   popd
 fi
+
+pushd /srv/phabricator/phabricator
+if [ "$MYSQL_HOST" != "" ]; then
+  sudo -u git ./bin/config set mysql.host "$MYSQL_HOST"
+fi
+if [ "$MYSQL_PORT" != "" ]; then
+  sudo -u git ./bin/config set mysql.port "$MYSQL_PORT"
+fi
+if [ "$MYSQL_USER" != "" ]; then
+  sudo -u git ./bin/config set mysql.user "$MYSQL_USER"
+fi
+if [ "$MYSQL_PASS" != "" ]; then
+  sudo -u git ./bin/config set mysql.pass "$MYSQL_PASS"
+fi
+if [ "$MYSQL_STORAGE_NAMESPACE" != "" ]; then
+  sudo -u git ./bin/config set storage.default-namespace "$MYSQL_STORAGE_NAMESPACE"
+fi
+if [ "$SSL_TYPE" == "none" ]; then
+  sudo -u git ./bin/config set phabricator.base-uri "http://$PHABRICATOR_HOST/"
+else
+  sudo -u git ./bin/config set phabricator.base-uri "https://$PHABRICATOR_HOST/"
+fi
+sudo -u git ./bin/config set phd.user 'git'
+popd
 
 if [ "$SCRIPT_BEFORE_MIGRATION" != "" ]; then
   pushd /srv/phabricator/phabricator
   $SCRIPT_BEFORE_MIGRATION
   popd
 fi
+
+# The search database may need to be repaired, and if so, will prevent bin/storage upgrade from working
+# so preemptively run a repair on that database now.
+mysqlcheck --host="$MYSQL_HOST" --port="$MYSQL_PORT" --user="$MYSQL_USER" --password="$MYSQL_PASS" --databases "${MYSQL_STORAGE_NAMESPACE}_search" || true
 
 /srv/phabricator/phabricator/bin/storage upgrade --force
 

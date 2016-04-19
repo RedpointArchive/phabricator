@@ -46,6 +46,7 @@ mkdir /etc/phabricator-ssh
 mv sshd_config.phabricator /etc/phabricator-ssh/sshd_config.phabricator
 mv 45-phabricator-ssh /etc/init.simple/45-phabricator-ssh
 mv phabricator-ssh-hook.sh /etc/phabricator-ssh/phabricator-ssh-hook.sh
+mv bake /bake
 rm setup.sh
 cd /
 rmdir /preflight # This should now be empty; it's an error if it's not.
