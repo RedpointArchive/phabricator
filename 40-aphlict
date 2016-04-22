@@ -4,6 +4,10 @@
 touch /var/log/aphlict.log
 chown git:wwwgrp-phabricator /var/log/aphlict.log
 
+#create default path for aphlict pid file and make it writable
+mkdir -p /var/tmp/aphlict/pid
+chown git:wwwgrp-phabricator /var/tmp/aphlict/pid
+
 # Copy ws module from global install
 cp -Rv /usr/lib/node_modules /srv/phabricator/phabricator/support/aphlict/server/
 chown -Rv git:wwwgrp-phabricator /srv/phabricator/phabricator/support/aphlict/server/node_modules
