@@ -14,5 +14,5 @@ chown -Rv git:wwwgrp-phabricator /srv/phabricator/phabricator/support/aphlict/se
 
 # Start the Phabricator notification server
 pushd /srv/phabricator/phabricator
-sudo -u git bin/aphlict start --client-host=localhost
+sudo -u git bin/aphlict start
 popd
