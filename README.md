@@ -1,90 +1,76 @@
-Usage
-----------
+# Phabricator
 
-To configure this image, create a `config` directory, with a `script.pre` file inside it.  This
-file should be marked as executable.  Place the following content in that file:
+This is a Docker image which provides a fully configured Phabricator image, including SSH connectivity to repositories, real-time notifications via Web Sockets and all of the other parts that are normally difficult to configure done for you.
 
-    #!/bin/bash
+You'll need an instance of MySQL for this Docker image to connect to, and for basic setups you can specify it with either the `MYSQL_LINKED_CONTAINER` or `MYSQL_HOST` environment variables, depending on where your instance of MySQL is.
 
-    # Set the name of the host running MySQL:
-    ./bin/config set mysql.host "example.com"
+## License
 
-    # If MySQL is running on a non-standard port:
-    #./bin/config set mysql.port 3306
+The configuration scripts provided in this image are licensed under the MIT license.  Phabricator itself and all accompanying software are licensed under their respective software licenses.
 
-    # Set the username for connecting to MySQL:
-    ./bin/config set mysql.user "root"
+## Basic Configuration
 
-    # Set the password for connecting to MySQL:
-    ./bin/config set mysql.pass "password"
+For most basic setups, you can use environment variables to configure the Phabricator image to your liking.  This works well with tools like `docker-compose`.
 
-    # Set the base URI that will be used to access Phabricator:
-    ./bin/config set phabricator.base-uri "http://myphabricator.com/"
+### Configuring MySQL
 
-To run this image:
+You need to do this before running the container, or things won't work.  If you have MySQL running in another container, you can use `MYSQL_LINKED_CONTAINER`, like so:
 
-    /usr/bin/docker run -p 22:22 -p 22280:22280 -v /path/to/config:/config -v /path/to/repo/storage:/srv/repo --name=phabricator --link mariadb:linked_mariadb hachque/phabricator
+```
+docker run --rm --env MYSQL_LINKED_CONTAINER=MYSQL --env MYSQL_USER=phabricator --env MYSQL_PASS=password --link somecontainer:mysql -p 80:80 -p 443:443 -p 22:22 hachque/phabricator
+```
 
-What do these parameters do?
+Note that the environment variable's value is equal to the linked container's name once converted to the variable format; that is a linked container name of `my.sql.container` would become `MY_SQL_CONTAINER`.
 
-    -p 22:22 = forward the host's SSH port to Phabricator for repository access
-    -p 22280:22280 = forward the host's 22280 port for the notification server
-    -v path/to/config:/config = map the configuration from the host to the container
-    -v path/to/repo/storage:/srv/repo = map the repository storage from the host to the container
-    --name phabricator = the name of the container
-    --link mariadb:linked_mariadb = (optional) if you are running MariaDB in a Docker container
-    hachque/phabricator = the name of the image
+If your instance of MySQL is running on the host or some external system, you can connect to it using the `MYSQL_USER` and associated variables like so:
 
-This assumes that you are using a reverse proxy container (such as `hachque/nginx-autoproxy`) to route HTTP and HTTPS requests to the Phabricator container.  If you are not, and you want to just expose the host's HTTP and HTTPS ports to Phabricator directly, you can add the following options:
+```
+docker run --rm --env MYSQL_HOST=externalhost.com --env MYSQL_PORT=3306 --env MYSQL_USER=phabricator --env MYSQL_PASS=password -p 80:80 -p 443:443 -p 22:22 hachque/phabricator
+```
 
-    -p 80:80 -p 443:443
+The `MYSQL_PORT` environment variable is set to a sensible default, so normally you don't need to explicitly provide it.
 
-This image is intended to be used in such a way that a new container is created each time it is started, instead of starting and stopping a pre-existing container from this image.  You should configure your service startup so that the container is stopped and removed each time.  A systemd configuration file may look like:
+### Configuring Phabricator
 
-    [Unit]
-    Description=phabricator
-    Requires=docker.service mariadb.service
-     
-    [Service]
-    ExecStart=<command to start instance, see above>
-    ExecStop=/usr/bin/docker stop phabricator
-    ExecStop=/usr/bin/docker rm phabricator
-    Restart=always
-    RestartSec=5s
-    
-    [Install]
-    WantedBy=multi-user.target
+Phabricator needs some basic information about how clients will connect to it.  You can provide the base URI for Phabricator with the `PHABRICATOR_URI` environment variable, like so:
 
-Because the container will be thrown away on each start, it's important to remember:
+```
+docker run ... --env PHABRICATOR_URI=myphabricator.com ...
+```
 
-  - **Make sure you configure Phabricator to store files in MySQL or AWS**.  Don't use local file storage, or you'll lose the lot when the container exits.
-  - **Map a directory from the host for repository storage**.  If you don't map a directory from the host for repository storage, then all your repositories will be lost when the container exists.
+### Configuring SSL
 
-Enabling SSL
-----------------
+You can configure SSL in one of three ways: you can omit it entirely, you can turn on the automatic Let's Encrypt registration or you can provide SSL certificates.
 
-To enable SSL, place `cert.pem` and `cert.key` files alongside `script.pre`.  The Docker
-container will automatically detect the presence of the certificates and configure
-Nginx to run with SSL enabled.
+#### No SSL
 
-Linking to a DB container
----------------------------
+This is the default.  If you provide no SSL related options, this image doesn't serve anything on port 443 (HTTPS).
 
-If you are running MariaDB in a Docker container (e.g. using the `hachque/mariadb` container), you can configure the `script.pre` file like so to use the linked MariaDB container:
+#### Automatic SSL via Let's Encrypt
 
-    ./bin/config set mysql.host "$LINKED_MARIADB_PORT_3306_TCP_ADDR"
-    ./bin/config set mysql.port "$LINKED_MARIADB_PORT_3306_TCP_PORT"
-    
-Include the `--link` option as shown above to link the Phabricator container to the MariaDB container.
+For this to work, you need to provide a volume mapped to `/config`, so that the image can store certificates across restarts.  You also need to set `PHABRICATOR_URI` as documented above.
 
-SSH / Login
---------------
+To enable automated SSL via Let's Encrypt, provide the following environment variables:
 
-**Username:** root
+```
+docker run ... --env SSL_TYPE=letsencrypt --env SSL_EMAIL='youremail@domain.com' --env PHABRICATOR_URI=myphabricator.com -v /some/host/path:/config ...
+```
 
-**Password:** linux
+#### Manual SSL
 
-**Port:** 24
+If you want to provide your own certificates, map a volume containing your certificates and set the appropriate environment variables:
 
-(Note that repository hosting for Phabricator is served on port 22)
+```
+docker run ... --env SSL_TYPE=manual --env SSL_CERTIFICATE=/ssl/cert.pem --env SSL_PRIVATE_KEY=/ssl/cert.key -v /host/folder/containing/certs:/ssl ...
+```
+
+## Advanced Configuration
+
+Advanced configuration topics including:
+
+* Using different source repositories (for patched versions of Phabricator)
+* Running custom commands during the boot process, and
+* Baking configuration into your own derived Docker image
+
+can be found on the GitHub wiki.
 
