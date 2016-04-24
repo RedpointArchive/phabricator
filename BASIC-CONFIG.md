@@ -9,7 +9,12 @@ A full list of all available environment variables can be found in the [Full Env
 You need to do this before running the container, or things won't work.  If you have MySQL running in another container, you can use `MYSQL_LINKED_CONTAINER`, like so:
 
 ```
-docker run --rm --env MYSQL_LINKED_CONTAINER=MYSQL --env MYSQL_USER=phabricator --env MYSQL_PASS=password --link somecontainer:mysql -p 80:80 -p 443:443 -p 22:22 hachque/phabricator
+docker run ... \
+    --env MYSQL_LINKED_CONTAINER=MYSQL \
+    --env MYSQL_USER=phabricator \
+    --env MYSQL_PASS=password \
+    --link somecontainer:mysql \
+    ...
 ```
 
 Note that the environment variable's value is equal to the linked container's name once converted to the variable format; that is a linked container name of `my.sql.container` would become `MY_SQL_CONTAINER`.
@@ -17,7 +22,12 @@ Note that the environment variable's value is equal to the linked container's na
 If your instance of MySQL is running on the host or some external system, you can connect to it using the `MYSQL_USER` and associated variables like so:
 
 ```
-docker run --rm --env MYSQL_HOST=externalhost.com --env MYSQL_PORT=3306 --env MYSQL_USER=phabricator --env MYSQL_PASS=password -p 80:80 -p 443:443 -p 22:22 hachque/phabricator
+docker run \
+    --env MYSQL_HOST=externalhost.com \
+    --env MYSQL_PORT=3306 \
+    --env MYSQL_USER=phabricator \
+    --env MYSQL_PASS=password \
+    ...
 ```
 
 The `MYSQL_PORT` environment variable is set to a sensible default, so normally you don't need to explicitly provide it.
@@ -27,13 +37,17 @@ The `MYSQL_PORT` environment variable is set to a sensible default, so normally 
 Phabricator needs some basic information about how clients will connect to it.  You can provide the base URI for Phabricator with the `PHABRICATOR_URI` environment variable, like so:
 
 ```
-docker run ... --env PHABRICATOR_URI=myphabricator.com ...
+docker run ... \
+    --env PHABRICATOR_URI=myphabricator.com \
+    ...
 ```
 
 It's recommended that you specify an alternate domain to serve files and other user content from.  This will make Phabricator more secure.  You can configure this using the `PHABRICATOR_CDN` option, like so:
 
 ```
-docker run ... --env PHABRICATOR_CDN=altdomain.com ...
+docker run ... \
+    --env PHABRICATOR_CDN=altdomain.com \
+    ...
 ```
 
 When using the Let's Encrypt SSL configuration, it will automatically register both domains.
@@ -41,7 +55,10 @@ When using the Let's Encrypt SSL configuration, it will automatically register b
 You also need to configure a place to store repository data.  This should be a volume mapped from the host, for example:
 
 ```
-docker run ... --env PHABRICATOR_REPOSITORY_STORAGE=/repos -v /path/on/host:/repos
+docker run ... \
+    --env PHABRICATOR_REPOSITORY_STORAGE=/repos \
+    -v /path/on/host:/repos \
+    ...
 ```
 
 By default, Phabricator stores file data in MySQL.  You can change this with the `PHABRICATOR_STORAGE_TYPE` option, which can be either `mysql` (the default), `disk` or `s3`.
@@ -49,15 +66,23 @@ By default, Phabricator stores file data in MySQL.  You can change this with the
 You can configure Phabricator to store files on disk by selecting the `disk` option, mapping a volume and configuring the path:
 
 ```
-docker run ... --env PHABRICATOR_STORAGE_TYPE=disk --env PHABRICATOR_STORAGE_PATH=/files -v /path/on/host:/files ...
+docker run ... \
+    --env PHABRICATOR_STORAGE_TYPE=disk \
+    --env PHABRICATOR_STORAGE_PATH=/files \
+    -v /path/on/host:/files \
+    ...
 ```
 
 Alternatively if you want to store file data in S3, you can do so by selecting the `s3` option, configuring the bucket and setting the AWS access and secret keys to use:
 
 ```
-docker run ... --env PHABRICATOR_STORAGE_TYPE=s3 --env PHABRICATOR_STORAGE_BUCKET=mybucket --env AWS_S3_ACCESS_KEY=... --env AWS_S3_SECRET_KEY=... ...
+docker run ... \
+    --env PHABRICATOR_STORAGE_TYPE=s3 \
+    --env PHABRICATOR_STORAGE_BUCKET=mybucket \
+    --env AWS_S3_ACCESS_KEY=... \
+    --env AWS_S3_SECRET_KEY=... \
+    ...
 ```
-
 
 # Configuring SSL
 
@@ -74,7 +99,9 @@ If your load balancer is terminating SSL, you should set `SSL_TYPE` to `external
 **NOTE:** If you use Load Balancer terminated SSL, things like real-time notifications are unlikely to work correctly.  It's recommended that you let the Docker instance terminate the SSL connection, and use TCP forwarding in any load balancer configuration you might have set up.
 
 ```
-docker run ... --env SSL_TYPE=external ...
+docker run ... \
+    --env SSL_TYPE=external \
+    ...
 ```
 
 ## Automatic SSL via Let's Encrypt
@@ -84,7 +111,13 @@ For this to work, you need to provide a volume mapped to `/config`, so that the 
 To enable automated SSL via Let's Encrypt, provide the following environment variables:
 
 ```
-docker run ... --env SSL_TYPE=letsencrypt --env SSL_EMAIL='youremail@domain.com' --env PHABRICATOR_HOST=myphabricator.com --env PHABRICATOR_CDN=altdomain.com -v /some/host/path:/config ...
+docker run ... \
+    --env SSL_TYPE=letsencrypt \
+    --env SSL_EMAIL='youremail@domain.com' \
+    --env PHABRICATOR_HOST=myphabricator.com \
+    --env PHABRICATOR_CDN=altdomain.com \
+    -v /some/host/path:/config \
+    ...
 ```
 
 ## Manual SSL
@@ -92,6 +125,10 @@ docker run ... --env SSL_TYPE=letsencrypt --env SSL_EMAIL='youremail@domain.com'
 If you want to provide your own certificates, map a volume containing your certificates and set the appropriate environment variables:
 
 ```
-docker run ... --env SSL_TYPE=manual --env SSL_CERTIFICATE=/ssl/cert.pem --env SSL_PRIVATE_KEY=/ssl/cert.key -v /host/folder/containing/certs:/ssl ...
+docker run ... \
+    --env SSL_TYPE=manual \
+    --env SSL_CERTIFICATE=/ssl/cert.pem \
+    --env SSL_PRIVATE_KEY=/ssl/cert.key \
+    -v /host/folder/containing/certs:/ssl \
+    ...
 ```
-
