@@ -10,7 +10,7 @@ The configuration scripts provided in this image are licensed under the MIT lice
 
 ## Configuration
 
-For basic configuration in getting the image running, refer to [Basic Configuration](BASIC_CONFIG.md).
+For basic configuration in getting the image running, refer to [Basic Configuration](BASIC-CONFIG.md).
 
 For more advanced configuration topics including:
 

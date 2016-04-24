@@ -1,14 +1,54 @@
 #!/bin/bash
 
-# Touch log file and PID file to make sure they're writable
-touch /var/log/aphlict.log
-chown git:wwwgrp-phabricator /var/log/aphlict.log
+# Source configuration
+source /config.saved
 
-# Copy ws module from global install
-cp -Rv /usr/lib/node_modules /srv/phabricator/phabricator/support/aphlict/server/
-chown -Rv git:wwwgrp-phabricator /srv/phabricator/phabricator/support/aphlict/server/node_modules
+if [ ! -f /baked ]; then
+  # Touch log file and PID file to make sure they're writable
+  touch /var/log/aphlict.log
+  chown git:wwwgrp-phabricator /var/log/aphlict.log
 
-# Start the Phabricator notification server
-pushd /srv/phabricator/phabricator
-sudo -u git bin/aphlict start --client-host=localhost
-popd
+  # Copy ws module from global install
+  cp -Rv /usr/lib/node_modules /srv/phabricator/phabricator/support/aphlict/server/
+  chown -Rv git:wwwgrp-phabricator /srv/phabricator/phabricator/support/aphlict/server/node_modules
+
+  # Configure the Phabricator notification server
+  cat >/srv/aphlict.conf <<EOF
+{
+  "servers": [
+    {
+      "type": "client",
+      "port": 22280,
+      "listen": "127.0.0.1",
+      "ssl.key": null,
+      "ssl.cert": null,
+      "ssl.chain": null
+    },
+    {
+      "type": "admin",
+      "port": 22281,
+      "listen": "127.0.0.1",
+      "ssl.key": null,
+      "ssl.cert": null,
+      "ssl.chain": null
+    }
+  ],
+  "logs": [
+    {
+      "path": "/dev/stdout"
+    }
+  ],
+  "pidfile": "/run/watch/aphlict"
+}
+EOF
+
+  # Aphlict needs write access to this directory
+  chmod a+rwX /run/watch
+fi
+
+if [ ! -f /is-baking ]; then
+  # Start the Phabricator notification server
+  pushd /srv/phabricator/phabricator
+  sudo -u git bin/aphlict start --config=/srv/aphlict.conf
+  popd
+fi

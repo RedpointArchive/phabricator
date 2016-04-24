@@ -2,37 +2,7 @@
 
 For most basic setups, you can use environment variables to configure the Phabricator image to your liking.  This works well with tools like `docker-compose`.
 
-## Full Environment Variable Reference
-
-- `PHABRICATOR_HOST` - The domain name for the Phabricator host (e.g. "mydomain.com").
-- `PHABRICATOR_CDN` - The domain name to use for serving files and other user content (optional, but recommended).
-- `PHABRICATOR_REPOSITORY_PATH` - The path to store repository data in.  This folder should be a volume mapped from the host, otherwise repository data will be lost when the container is destroyed.
-- `PHABRICATOR_STORAGE_TYPE` - The type of storage to use for files.  Defaults to `mysql`, but you can set it to `disk` or `s3` for alterate storage options (see below).
-- `PHABRICATOR_STORAGE_PATH` - When using the `disk` type of storage, specifies the path in the container that's been mapped to the host for permanent file storage.  This should be a different path to `PHABRICATOR_REPOSITORY_PATH`.
-- `PHABRICATOR_STORAGE_BUCKET` - When using the `s3` type of storage, specifies the bucket to store files in.
-- `AWS_S3_ACCESS_KEY` - The AWS access key to use for S3.  Only needed when the `s3` storage type is selected.
-- `AWS_S3_SECRET_KEY` - The AWS secret key to use for S3.  Only needed when the `s3` storage type is selected.
-- `MYSQL_LINKED_CONTAINER` - Use this if you want to connect to a MySQL container (see below).
-- `MYSQL_HOST` - Use this if you want to connect to an external MySQL host (see below).
-- `MYSQL_PORT` - When connecting to an external MySQL host, use this port (optional).
-- `MYSQL_USER` - The user to connect to MySQL as.
-- `MYSQL_PASS` - The password to connect to MySQL.
-- `MYSQL_STORAGE_NAMESPACE` - The prefix to use for database names (optional, defaults to "phabricator").
-- `ENABLE_APCU` - Enable the APCu extension for PHP.  This may improve performance, but is not as stable as regular PHP.
-- `ENABLE_UPDATE_ON_START` - By default this image uses the version of Phabricator baked into the image when it was made.  By setting this to "true", it will fetch the latest version of Phabricator when the image starts.
-- `SSL_TYPE` - One of "none", "manual" or "letsencrypt".  See below for configuration (defaults to "none").
-- `SSL_CERTIFICATE` - The path to the SSL certificate chain (manual mode only).
-- `SSL_PRIVATE_KEY` - The path to the SSL private key (manual mode only).
-- `SSL_EMAIL` - The email address to use when registering for an SSL certificate (Let's Encrypt mode only)
-
-The following options automatically turn on `ENABLE_UPDATE_ON_START`:
-
-- `OVERRIDE_PHABRICATOR_URI` - Changes the Git URI to clone Phabricator from.
-- `OVERRIDE_PHABRICATOR_BRANCH` - Changes the Git branch or commit to use for the Phabricator repository.
-- `OVERRIDE_ARCANIST_URI` - Changes the Git URI to clone Arcanist from.
-- `OVERRIDE_ARCANIST_BRANCH` - Changes the Git branch or commit to use for the Arcanist repository.
-- `OVERRIDE_LIBPHUTIL_URI` - Changes the Git URI to clone libphutil from.
-- `OVERRIDE_LIBPHUTIL_BRANCH` - Changes the Git branch or commit to use for the libphutil repository.
+A full list of all available environment variables can be found in the [Full Environment Variable List](ENV-LIST.md).
 
 # Configuring MySQL
 
