@@ -26,6 +26,10 @@ if [ "$SSL_TYPE" == "" ]; then
   SSL_TYPE=none
 fi
 
+if [ "$PHABRICATOR_STORAGE_TYPE" == "" ]; then
+  PHABRICATOR_STORAGE_TYPE=mysql
+fi
+
 if [ "$OVERRIDE_PHABRICATOR_URI" != "" ] ||
    [ "$OVERRIDE_PHABRICATOR_BRANCH" != "" ] ||
    [ "$OVERRIDE_ARCANIST_URI" != "" ] ||
@@ -59,6 +63,13 @@ OVERRIDE_ARCANIST_BRANCH="$OVERRIDE_ARCANIST_BRANCH"
 OVERRIDE_LIBPHUTIL_URI="$OVERRIDE_LIBPHUTIL_URI"
 OVERRIDE_LIBPHUTIL_BRANCH="$OVERRIDE_LIBPHUTIL_BRANCH"
 PHABRICATOR_HOST="$PHABRICATOR_HOST"
+PHABRICATOR_CDN="$PHABRICATOR_CDN"
+PHABRICATOR_REPOSITORY_PATH="$PHABRICATOR_REPOSITORY_PATH"
+PHABRICATOR_STORAGE_TYPE="$PHABRICATOR_STORAGE_TYPE"
+PHABRICATOR_STORAGE_PATH="$PHABRICATOR_STORAGE_PATH"
+PHABRICATOR_STORAGE_BUCKET="$PHABRICATOR_STORAGE_BUCKET"
+AWS_S3_ACCESS_KEY="$AWS_S3_ACCESS_KEY"
+AWS_S3_SECRET_KEY="$AWS_S3_SECRET_KEY"
 MYSQL_HOST="$MYSQL_HOST"
 MYSQL_PORT="$MYSQL_PORT"
 MYSQL_USER="$MYSQL_USER"
@@ -148,6 +159,34 @@ else
   sudo -u git ./bin/config set phabricator.base-uri "https://$PHABRICATOR_HOST/"
 fi
 sudo -u git ./bin/config set phd.user 'git'
+sudo -u git ./bin/config set pygments.enabled true
+if [ "$PHABRICATOR_REPOSITORY_PATH" != "" ]; then
+  sudo -u git ./bin/config set repository.default-local-path "$PHABRICATOR_REPOSITORY_PATH"
+fi
+if [ "$PHABRICATOR_STORAGE_TYPE" == "mysql" ]; then
+  sudo -u git ./bin/config set storage.mysql-engine.max-size "32MB"
+fi
+if [ "$PHABRICATOR_STORAGE_TYPE" == "disk" ]; then
+  sudo -u git ./bin/config set storage.mysql-engine.max-size "0"
+  sudo -u git ./bin/config set storage.local-disk-path "$PHABRICATOR_STORAGE_PATH"
+fi
+if [ "$PHABRICATOR_STORAGE_TYPE" == "s3" ]; then
+  sudo -u git ./bin/config set storage.mysql-engine.max-size "0"
+  sudo -u git ./bin/config set storage.s3.bucket "$PHABRICATOR_STORAGE_BUCKET"
+fi
+if [ "$AWS_S3_ACCESS_KEY" != "" ]; then
+  sudo -u git ./bin/config set amazon-s3.access-key "$AWS_S3_ACCESS_KEY"
+fi
+if [ "$AWS_S3_SECRET_KEY" != "" ]; then
+  sudo -u git ./bin/config set amazon-s3.secret-key "$AWS_S3_SECRET_KEY"
+fi
+if [ "$PHABRICATOR_CDN" != "" ]; then
+  if [ "$SSL_TYPE" == "none" ]; then
+    sudo -u git ./bin/config set security.alternate-file-domain "http://$PHABRICATOR_CDN/"
+  else
+    sudo -u git ./bin/config set security.alternate-file-domain "https://$PHABRICATOR_CDN/"
+  fi
+fi
 popd
 
 if [ "$SCRIPT_BEFORE_MIGRATION" != "" ]; then
