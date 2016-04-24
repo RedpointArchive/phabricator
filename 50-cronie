@@ -1,4 +1,6 @@
 #!/bin/bash
 
-# Run Cronie
-/usr/sbin/cron
+if [ ! -f /is-baking ]; then
+  # Run Cronie
+  /usr/sbin/cron
+fi

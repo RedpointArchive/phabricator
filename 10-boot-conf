@@ -51,6 +51,10 @@ if [ -f /config/script.post ]; then
   SCRIPT_AFTER_MIGRATION=/config/script.post
 fi
 
+if [ -f /config/script.phd ]; then
+  SCRIPT_AFTER_DAEMONS=/config/script.phd
+fi
+
 if [ -f /config/script.letsencrypt ]; then
   SCRIPT_AFTER_LETS_ENCRYPT=/config/script.letsencrypt
 fi
@@ -153,10 +157,19 @@ fi
 if [ "$MYSQL_STORAGE_NAMESPACE" != "" ]; then
   sudo -u git ./bin/config set storage.default-namespace "$MYSQL_STORAGE_NAMESPACE"
 fi
-if [ "$SSL_TYPE" == "none" ]; then
-  sudo -u git ./bin/config set phabricator.base-uri "http://$PHABRICATOR_HOST/"
-else
-  sudo -u git ./bin/config set phabricator.base-uri "https://$PHABRICATOR_HOST/"
+if [ "$PHABRICATOR_HOST" != "" ]; then
+  if [ "$SSL_TYPE" == "none" ]; then
+    sudo -u git ./bin/config set phabricator.base-uri "http://$PHABRICATOR_HOST/"
+  else
+    sudo -u git ./bin/config set phabricator.base-uri "https://$PHABRICATOR_HOST/"
+  fi
+fi
+if [ "$PHABRICATOR_CDN" != "" ]; then
+  if [ "$SSL_TYPE" == "none" ]; then
+    sudo -u git ./bin/config set security.alternate-file-domain "http://$PHABRICATOR_CDN/"
+  else
+    sudo -u git ./bin/config set security.alternate-file-domain "https://$PHABRICATOR_CDN/"
+  fi
 fi
 sudo -u git ./bin/config set phd.user 'git'
 sudo -u git ./bin/config set pygments.enabled true
@@ -179,13 +192,6 @@ if [ "$AWS_S3_ACCESS_KEY" != "" ]; then
 fi
 if [ "$AWS_S3_SECRET_KEY" != "" ]; then
   sudo -u git ./bin/config set amazon-s3.secret-key "$AWS_S3_SECRET_KEY"
-fi
-if [ "$PHABRICATOR_CDN" != "" ]; then
-  if [ "$SSL_TYPE" == "none" ]; then
-    sudo -u git ./bin/config set security.alternate-file-domain "http://$PHABRICATOR_CDN/"
-  else
-    sudo -u git ./bin/config set security.alternate-file-domain "https://$PHABRICATOR_CDN/"
-  fi
 fi
 if [ "$SSL_TYPE" == "none" ]; then
   APHLICT_PROTOCOL="http"

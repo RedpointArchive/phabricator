@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Run PHP-FPM
-/usr/sbin/php-fpm &
-phpfpmpid=$!
+if [ ! -f /is-baking ]; then
+  # Run PHP-FPM
+  /usr/sbin/php-fpm &
+  phpfpmpid=$!
 
-echo $phpfpmpid > /run/watch/php-fpm
+  echo $phpfpmpid > /run/watch/php-fpm
+fi
 
