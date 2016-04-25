@@ -61,7 +61,7 @@ docker run ... \
     ...
 ```
 
-To provide SSH access to repositories, you need to set an map a path to store the SSH host keys in.  If you don't map this directory to permanent storage on the host, then clients will see the host keys changing next time the container is restarted, which will prevent them from reconnecting to the server again.  You can configure SSH access to repositories like so:
+To provide SSH access to repositories, you need to set a path to store the SSH host keys in.  If you are not baking a derived image (see [Advanced Configuration](ADVANCED-CONFIG.md)), then you need to map that path to a location on the host.  If you are baking an image, you can omit the mapping and the SSH keys will form part of your derived image.  You can configure SSH access to repositories like so:
 
 ```
 docker run ... \

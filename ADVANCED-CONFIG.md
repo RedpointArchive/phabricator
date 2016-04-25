@@ -59,4 +59,57 @@ sudo -u git ./bin/config set load-libraries '["/srv/phabricator/my-extension"]'
 
 # Baking configuration into an image
 
-**NOTE:** This documentation is coming soon.
+You can bake the configuration and initial start-up of this image into your own derived image.  The benefits of doing this are:
+
+* The start-up of the image will be faster, as the one-time processes will have already been done
+* You can push this image to a private repository and use it to run a Phabricator cluster
+
+To bake an image, create a `Dockerfile` like this:
+
+```
+FROM hachque/phabricator
+
+ADD my-script /my-script
+RUN /my-script
+```
+
+then create `my-script` like this:
+
+```
+#!/bin/bash
+ 
+set -e
+set -x
+
+export MYSQL_HOST="..."
+# .. export more configuration values here ..
+
+/bake /my-script
+```
+
+You can set the advanced environment variables for hooking scripts as documented in [Full Environment Variable Reference](ENV-LIST.md), and add those
+scripts to your image so they run each time.
+
+When writing custom scripts for your image, you can check if the script is being run during the initial bake process by checking with:
+
+```
+if [ -f /is-baking ]; then
+```
+
+Likewise, you can check if you are not doing an initial bake (non-baked start up, or start up after bake), with:
+
+```
+if [ ! -f /is-baking ]; then
+```
+
+You can check if the script is running after the image has been baked with:
+
+```
+if [ -f /baked ]; then
+```
+
+Likewise, you can check if you are not running in a baked image (non-baked start up, or during initial bake), with:
+
+```
+if [ ! -f /baked ]; then
+```
