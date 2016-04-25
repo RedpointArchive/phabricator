@@ -216,6 +216,12 @@ unset APHLICT_PROTOCOL
 unset APHLICT_PORT
 popd
 
+if [ "$ENABLE_APCU" == "true" ]; then
+  cat >/etc/php5/conf.d/apcu.ini <<EOF
+extension=apcu.so
+EOF
+fi
+
 if [ "$SCRIPT_BEFORE_MIGRATION" != "" ]; then
   pushd /srv/phabricator/phabricator
   $SCRIPT_BEFORE_MIGRATION
