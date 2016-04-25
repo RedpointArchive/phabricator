@@ -1,5 +1,33 @@
 #!/bin/bash
 
+# Reload configuration
+source /config.saved
+
+# If there's no SSH host key storage, we can't provide
+# SSH services.
+if [ "$PHABRICATOR_HOST_KEYS_PATH" == "" ]; then
+  echo "PHABRICATOR_HOST_KEYS_PATH is not set; unable to provide SSH access to repositories."
+  exit 0
+fi
+
+# Generate SSH host keys if they aren't already present
+if [ ! -f /baked ]; then
+  if [ -d $PHABRICATOR_HOST_KEYS_PATH ]; then
+    cp -v $PHABRICATOR_HOST_KEYS_PATH/* /etc/ssh/
+  else
+    /usr/sbin/sshd-gen-keys-start
+    mkdir -pv $PHABRICATOR_HOST_KEYS_PATH
+    cp -v /etc/ssh/ssh_host_key $PHABRICATOR_HOST_KEYS_PATH/
+    cp -v /etc/ssh/ssh_host_key.pub $PHABRICATOR_HOST_KEYS_PATH/
+    cp -v /etc/ssh/ssh_host_dsa_key $PHABRICATOR_HOST_KEYS_PATH/
+    cp -v /etc/ssh/ssh_host_dsa_key.pub $PHABRICATOR_HOST_KEYS_PATH/
+    cp -v /etc/ssh/ssh_host_rsa_key $PHABRICATOR_HOST_KEYS_PATH/
+    cp -v /etc/ssh/ssh_host_rsa_key.pub $PHABRICATOR_HOST_KEYS_PATH/
+    cp -v /etc/ssh/ssh_host_ecdsa_key $PHABRICATOR_HOST_KEYS_PATH/
+    cp -v /etc/ssh/ssh_host_ecdsa_key.pub $PHABRICATOR_HOST_KEYS_PATH/
+  fi
+fi
+
 if [ ! -f /is-baking ]; then
   # Run SSHD
   /usr/sbin/sshd -f /etc/phabricator-ssh/sshd_config.phabricator

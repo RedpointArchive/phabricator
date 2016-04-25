@@ -56,8 +56,17 @@ You also need to configure a place to store repository data.  This should be a v
 
 ```
 docker run ... \
-    --env PHABRICATOR_REPOSITORY_STORAGE=/repos \
+    --env PHABRICATOR_REPOSITORY_PATH=/repos \
     -v /path/on/host:/repos \
+    ...
+```
+
+To provide SSH access to repositories, you need to set an map a path to store the SSH host keys in.  If you don't map this directory to permanent storage on the host, then clients will see the host keys changing next time the container is restarted, which will prevent them from reconnecting to the server again.  You can configure SSH access to repositories like so:
+
+```
+docker run ... \
+    --env PHABRICATOR_HOST_KEYS_PATH=/hostkeys \
+    -v /path/on/host:/hostkeys \
     ...
 ```
 
