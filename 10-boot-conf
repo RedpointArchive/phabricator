@@ -59,6 +59,17 @@ if [ -f /config/script.letsencrypt ]; then
   SCRIPT_AFTER_LETS_ENCRYPT=/config/script.letsencrypt
 fi
 
+if [ -f /config/letsencrypt.config ]; then 
+  . /config/letsencrypt.config
+  if [ "$LETS_ENCRYPT" == "true" ]; then
+    SSL_TYPE="letsencrypt"
+    SSL_EMAIL="$LETS_ENCRYPT_EMAIL"
+    if [ "$PHABRICATOR_HOST" == "" ]; then
+      PHABRICATOR_HOST="$LETS_ENCRYPT_DOMAIN"
+    fi
+  fi
+fi
+
 cat >/config.saved <<EOF
 OVERRIDE_PHABRICATOR_URI="$OVERRIDE_PHABRICATOR_URI"
 OVERRIDE_PHABRICATOR_BRANCH="$OVERRIDE_PHABRICATOR_BRANCH"
