@@ -197,7 +197,7 @@ if [ "$PHABRICATOR_STORAGE_TYPE" == "mysql" ]; then
 fi
 if [ "$PHABRICATOR_STORAGE_TYPE" == "disk" ]; then
   sudo -u git ./bin/config set storage.mysql-engine.max-size 0
-  sudo -u git ./bin/config set storage.local-disk-path "$PHABRICATOR_STORAGE_PATH"
+  sudo -u git ./bin/config set storage.local-disk.path "$PHABRICATOR_STORAGE_PATH"
 fi
 if [ "$PHABRICATOR_STORAGE_TYPE" == "s3" ]; then
   sudo -u git ./bin/config set storage.mysql-engine.max-size 0
