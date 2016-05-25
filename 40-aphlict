@@ -44,6 +44,9 @@ EOF
 
   # Aphlict needs write access to this directory
   chmod a+rwX /run/watch
+  # Aphlict needs write access / ownership to pid directory
+  mkdir -p /var/tmp/aphlict/pid
+  chown 2000:2000 /var/tmp/aphlict/pid
 fi
 
 if [ ! -f /is-baking ]; then
