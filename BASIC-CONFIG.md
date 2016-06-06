@@ -65,7 +65,7 @@ To provide SSH access to repositories, you need to set a path to store the SSH h
 
 ```
 docker run ... \
-    --env PHABRICATOR_HOST_KEYS_PATH=/hostkeys \
+    --env PHABRICATOR_HOST_KEYS_PATH=/hostkeys/persisted \
     -v /path/on/host:/hostkeys \
     ...
 ```
