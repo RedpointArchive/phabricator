@@ -34,11 +34,11 @@ The `MYSQL_PORT` environment variable is set to a sensible default, so normally 
 
 # Configuring Phabricator
 
-Phabricator needs some basic information about how clients will connect to it.  You can provide the base URI for Phabricator with the `PHABRICATOR_URI` environment variable, like so:
+Phabricator needs some basic information about how clients will connect to it.  You can provide the base URI for Phabricator with the `PHABRICATOR_HOST` environment variable, like so:
 
 ```
 docker run ... \
-    --env PHABRICATOR_URI=myphabricator.com \
+    --env PHABRICATOR_HOST=myphabricator.com \
     ...
 ```
 
