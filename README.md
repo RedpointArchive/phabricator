@@ -20,7 +20,7 @@ docker run \
 
 ## Configuration
 
-For basic configuration in getting the image running, refer to [Basic Configuration](BASIC-CONFIG.md).
+For basic configuration in getting the image running, refer to [Basic Configuration](https://github.com/hach-que-docker/phabricator/blob/master/BASIC-CONFIG.md).
 
 For more advanced configuration topics including:
 
@@ -28,7 +28,7 @@ For more advanced configuration topics including:
 * Running custom commands during the boot process, and
 * Baking configuration into your own derived Docker image
 
-refer to [Advanced Configuration](ADVANCED-CONFIG.md).
+refer to [Advanced Configuration](https://github.com/hach-que-docker/phabricator/blob/master/ADVANCED-CONFIG.md).
 
 For users that are upgrading to this version and currently using the old `/config` mechanism to configure Phabricator, this configuration mechanism will continue to work, but it's recommended that you migrate to environment variables or baked images when you next get the chance.
 
