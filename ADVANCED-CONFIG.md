@@ -54,7 +54,7 @@ Then inside `/hostscripts` on the host you'd have the following executable shell
 
 git clone https://github.com/mycompany/my-extension /srv/phabricator/my-extension
 cd /srv/phabricator/phabricator
-sudo -u git ./bin/config set load-libraries '["/srv/phabricator/my-extension"]'
+sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set load-libraries '["/srv/phabricator/my-extension"]'
 ```
 
 # Baking configuration into an image

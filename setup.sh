@@ -52,20 +52,29 @@ rm setup.sh
 cd /
 rmdir /preflight # This should now be empty; it's an error if it's not.
 
+# Update the PHABRICATOR_VCS_USER in config files
+# NOTE: this variable must be set a container build-time, not at run-time!
+sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/init.simple/10-boot-conf
+sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/init.simple/35-phd
+sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/init.simple/40-aphlict
+sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/phabricator-ssh/sshd_config.phabricator
+sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/phabricator-ssh/phabricator-ssh-hook.sh
+sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/php5/fpm/php-fpm.conf
+
 # Create users and groups
 echo "nginx:x:497:495:user for nginx:/var/lib/nginx:/bin/false" >> /etc/passwd
 echo "nginx:!:495:" >> /etc/group
-echo "git:x:2000:2000:user for phabricator:/srv/phabricator:/bin/bash" >> /etc/passwd
+echo "$PHABRICATOR_VCS_USER:x:2000:2000:user for phabricator:/srv/phabricator:/bin/bash" >> /etc/passwd
 echo "wwwgrp-phabricator:!:2000:nginx" >> /etc/group
 
 # Set up the Phabricator code base
 mkdir /srv/phabricator
-chown git:wwwgrp-phabricator /srv/phabricator
+chown "$PHABRICATOR_VCS_USER:wwwgrp-phabricator" /srv/phabricator
 cd /srv/phabricator
-sudo -u git git clone https://www.github.com/phacility/libphutil.git /srv/phabricator/libphutil
-sudo -u git git clone https://www.github.com/phacility/arcanist.git /srv/phabricator/arcanist
-sudo -u git git clone https://www.github.com/phacility/phabricator.git /srv/phabricator/phabricator
-sudo -u git git clone https://www.github.com/PHPOffice/PHPExcel.git /srv/phabricator/PHPExcel
+sudo -u "$PHABRICATOR_VCS_USER" git clone https://www.github.com/phacility/libphutil.git /srv/phabricator/libphutil
+sudo -u "$PHABRICATOR_VCS_USER" git clone https://www.github.com/phacility/arcanist.git /srv/phabricator/arcanist
+sudo -u "$PHABRICATOR_VCS_USER" git clone https://www.github.com/phacility/phabricator.git /srv/phabricator/phabricator
+sudo -u "$PHABRICATOR_VCS_USER" git clone https://www.github.com/PHPOffice/PHPExcel.git /srv/phabricator/PHPExcel
 cd /
 
 # Clone Let's Encrypt

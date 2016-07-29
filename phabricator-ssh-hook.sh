@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # NOTE: Replace this with the username that you expect users to connect with.
-VCSUSER="git"
+VCSUSER="__PHABRICATOR_VCS_USER__"
 
 # NOTE: Replace this with the path to your Phabricator directory.
 ROOT="/srv/phabricator/phabricator"

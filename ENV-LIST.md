@@ -22,6 +22,10 @@
 - `SSL_PRIVATE_KEY` - The path to the SSL private key (manual mode only).
 - `SSL_EMAIL` - The email address to use when registering for an SSL certificate (Let's Encrypt mode only)
 
+The following environment variable may be used at run-time, but must only be specified at build time using `--build-arg`:
+
+- `PHABRICATOR_VCS_USER` - The user name for SSH access. Defaults to `git`.
+
 The following advanced options automatically turn on `ENABLE_UPDATE_ON_START`:
 
 - `OVERRIDE_PHABRICATOR_URI` - Changes the Git URI to clone Phabricator from.
