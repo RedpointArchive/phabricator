@@ -26,6 +26,10 @@ if [ "$SSL_TYPE" == "" ]; then
   SSL_TYPE=none
 fi
 
+if [ "$PHABRICATOR_VCS_USER" == "" ]; then
+  PHABRICATOR_VCS_USER=git
+fi
+
 if [ "$PHABRICATOR_STORAGE_TYPE" == "" ]; then
   PHABRICATOR_STORAGE_TYPE=mysql
 fi
@@ -112,6 +116,12 @@ EOF
 
 # Reload configuration
 source /config.saved
+
+# Update the PHABRICATOR_VCS_USER in config files
+sed -i "s/PHABRICATOR/$PHABRICATOR_VCS_USER/g" /etc/passwd
+sed "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/phabricator-ssh/sshd_config.phabricator.template > /etc/phabricator-ssh/sshd_config.phabricator
+sed "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/phabricator-ssh/phabricator-ssh-hook.sh.template > /etc/phabricator-ssh/phabricator-ssh-hook.sh
+sed "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/php5/fpm/php-fpm.conf.template > /etc/php5/fpm/php-fpm.conf
 
 # Set up Phabricator
 if [ "$SCRIPT_BEFORE_UPDATE" != "" ]; then

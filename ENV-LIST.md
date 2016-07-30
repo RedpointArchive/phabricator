@@ -6,6 +6,7 @@
 - `PHABRICATOR_STORAGE_TYPE` - The type of storage to use for files.  Defaults to `mysql`, but you can set it to `disk` or `s3` for alterate storage options (see [Basic Configuration](BASIC-CONFIG.md)).
 - `PHABRICATOR_STORAGE_PATH` - When using the `disk` type of storage, specifies the path in the container that's been mapped to the host for permanent file storage.  This should be a different path to `PHABRICATOR_REPOSITORY_PATH`.
 - `PHABRICATOR_STORAGE_BUCKET` - When using the `s3` type of storage, specifies the bucket to store files in.
+- `PHABRICATOR_VCS_USER` - The user name for SSH access. Defaults to `git`.
 - `PHABRICATOR_HOST_KEYS_PATH` - The path to store SSH host keys in.  This directory should be a volume mapped from the host, otherwise clients will be unable to connect after the container is restarted.
 - `AWS_S3_ACCESS_KEY` - The AWS access key to use for S3.  Only needed when the `s3` storage type is selected.
 - `AWS_S3_SECRET_KEY` - The AWS secret key to use for S3.  Only needed when the `s3` storage type is selected.
@@ -21,10 +22,6 @@
 - `SSL_CERTIFICATE` - The path to the SSL certificate chain (manual mode only).
 - `SSL_PRIVATE_KEY` - The path to the SSL private key (manual mode only).
 - `SSL_EMAIL` - The email address to use when registering for an SSL certificate (Let's Encrypt mode only)
-
-The following environment variable may be used at run-time, but must only be specified at build time using `--build-arg`:
-
-- `PHABRICATOR_VCS_USER` - The user name for SSH access. Defaults to `git`.
 
 The following advanced options automatically turn on `ENABLE_UPDATE_ON_START`:
 
