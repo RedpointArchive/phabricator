@@ -54,9 +54,6 @@ rmdir /preflight # This should now be empty; it's an error if it's not.
 
 # Update the PHABRICATOR_VCS_USER in config files
 # NOTE: this variable must be set a container build-time, not at run-time!
-sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/init.simple/10-boot-conf
-sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/init.simple/35-phd
-sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/init.simple/40-aphlict
 sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/phabricator-ssh/sshd_config.phabricator
 sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/phabricator-ssh/phabricator-ssh-hook.sh
 sed -i "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/php5/fpm/php-fpm.conf
