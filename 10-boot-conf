@@ -123,6 +123,7 @@ sed -i "s/PHABRICATOR/$PHABRICATOR_VCS_USER/g" /etc/passwd
 sed "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/phabricator-ssh/sshd_config.phabricator.template > /etc/phabricator-ssh/sshd_config.phabricator
 sed "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/phabricator-ssh/phabricator-ssh-hook.sh.template > /etc/phabricator-ssh/phabricator-ssh-hook.sh
 sed "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/php5/fpm/php-fpm.conf.template > /etc/php5/fpm/php-fpm.conf
+chmod 755 /etc/phabricator-ssh/phabricator-ssh-hook.sh
 
 # Set up Phabricator
 if [ "$SCRIPT_BEFORE_UPDATE" != "" ]; then
