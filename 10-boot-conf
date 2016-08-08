@@ -26,6 +26,10 @@ if [ "$SSL_TYPE" == "" ]; then
   SSL_TYPE=none
 fi
 
+if [ "$PHABRICATOR_VCS_USER" == "" ]; then
+  PHABRICATOR_VCS_USER=git
+fi
+
 if [ "$PHABRICATOR_STORAGE_TYPE" == "" ]; then
   PHABRICATOR_STORAGE_TYPE=mysql
 fi
@@ -87,6 +91,8 @@ PHABRICATOR_REPOSITORY_PATH="$PHABRICATOR_REPOSITORY_PATH"
 PHABRICATOR_STORAGE_TYPE="$PHABRICATOR_STORAGE_TYPE"
 PHABRICATOR_STORAGE_PATH="$PHABRICATOR_STORAGE_PATH"
 PHABRICATOR_STORAGE_BUCKET="$PHABRICATOR_STORAGE_BUCKET"
+PHABRICATOR_VCS_USER="$PHABRICATOR_VCS_USER"
+PHABRICATOR_VCS_PORT="$PHABRICATOR_VCS_PORT"
 PHABRICATOR_HOST_KEYS_PATH="$PHABRICATOR_HOST_KEYS_PATH"
 AWS_S3_ACCESS_KEY="$AWS_S3_ACCESS_KEY"
 AWS_S3_SECRET_KEY="$AWS_S3_SECRET_KEY"
@@ -112,6 +118,13 @@ EOF
 # Reload configuration
 source /config.saved
 
+# Update the PHABRICATOR_VCS_USER in config files
+sed -i "s/PHABRICATOR/$PHABRICATOR_VCS_USER/g" /etc/passwd
+sed "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/phabricator-ssh/sshd_config.phabricator.template > /etc/phabricator-ssh/sshd_config.phabricator
+sed "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/phabricator-ssh/phabricator-ssh-hook.sh.template > /etc/phabricator-ssh/phabricator-ssh-hook.sh
+sed "s/__PHABRICATOR_VCS_USER__/$PHABRICATOR_VCS_USER/g" /etc/php5/fpm/php-fpm.conf.template > /etc/php5/fpm/php-fpm.conf
+chmod 755 /etc/phabricator-ssh/phabricator-ssh-hook.sh
+
 # Set up Phabricator
 if [ "$SCRIPT_BEFORE_UPDATE" != "" ]; then
   pushd /srv/phabricator/phabricator
@@ -122,92 +135,95 @@ fi
 if [ "$ENABLE_UPDATE_ON_START" == "true" ]; then
   pushd /srv/phabricator/libphutil
   if [ "$OVERRIDE_LIBPHUTIL_URI" != "" ]; then
-    sudo -u git git remote set-url origin $OVERRIDE_LIBPHUTIL_URI
+    sudo -u "$PHABRICATOR_VCS_USER" git remote set-url origin $OVERRIDE_LIBPHUTIL_URI
   fi
-  sudo -u git git fetch --all
+  sudo -u "$PHABRICATOR_VCS_USER" git fetch --all
   if [ "$OVERRIDE_LIBPHUTIL_BRANCH" != "" ]; then
-    sudo -u git git checkout $OVERRIDE_LIBPHUTIL_BRANCH
+    sudo -u "$PHABRICATOR_VCS_USER" git checkout $OVERRIDE_LIBPHUTIL_BRANCH
   else
-    sudo -u git git pull
+    sudo -u "$PHABRICATOR_VCS_USER" git pull
   fi
   popd
 
   pushd /srv/phabricator/arcanist
   if [ "$OVERRIDE_ARCANIST_URI" != "" ]; then
-    sudo -u git git remote set-url origin $OVERRIDE_ARCANIST_URI
+    sudo -u "$PHABRICATOR_VCS_USER" git remote set-url origin $OVERRIDE_ARCANIST_URI
   fi
-  sudo -u git git fetch --all
+  sudo -u "$PHABRICATOR_VCS_USER" git fetch --all
   if [ "$OVERRIDE_ARCANIST_BRANCH" != "" ]; then
-    sudo -u git git checkout $OVERRIDE_ARCANIST_BRANCH
+    sudo -u "$PHABRICATOR_VCS_USER" git checkout $OVERRIDE_ARCANIST_BRANCH
   else
-    sudo -u git git pull
+    sudo -u "$PHABRICATOR_VCS_USER" git pull
   fi
   popd
 
   pushd /srv/phabricator/phabricator
   if [ "$OVERRIDE_PHABRICATOR_URI" != "" ]; then
-    sudo -u git git remote set-url origin $OVERRIDE_PHABRICATOR_URI
+    sudo -u "$PHABRICATOR_VCS_USER" git remote set-url origin $OVERRIDE_PHABRICATOR_URI
   fi
-  sudo -u git git fetch --all
+  sudo -u "$PHABRICATOR_VCS_USER" git fetch --all
   if [ "$OVERRIDE_PHABRICATOR_BRANCH" != "" ]; then
-    sudo -u git git checkout $OVERRIDE_PHABRICATOR_BRANCH
+    sudo -u "$PHABRICATOR_VCS_USER" git checkout $OVERRIDE_PHABRICATOR_BRANCH
   else
-    sudo -u git git pull
+    sudo -u "$PHABRICATOR_VCS_USER" git pull
   fi
   popd
 fi
 
 pushd /srv/phabricator/phabricator
 if [ "$MYSQL_HOST" != "" ]; then
-  sudo -u git ./bin/config set mysql.host "$MYSQL_HOST"
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set mysql.host "$MYSQL_HOST"
 fi
 if [ "$MYSQL_PORT" != "" ]; then
-  sudo -u git ./bin/config set mysql.port "$MYSQL_PORT"
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set mysql.port "$MYSQL_PORT"
 fi
 if [ "$MYSQL_USER" != "" ]; then
-  sudo -u git ./bin/config set mysql.user "$MYSQL_USER"
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set mysql.user "$MYSQL_USER"
 fi
 if [ "$MYSQL_PASS" != "" ]; then
-  sudo -u git ./bin/config set mysql.pass "$MYSQL_PASS"
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set mysql.pass "$MYSQL_PASS"
 fi
 if [ "$MYSQL_STORAGE_NAMESPACE" != "" ]; then
-  sudo -u git ./bin/config set storage.default-namespace "$MYSQL_STORAGE_NAMESPACE"
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set storage.default-namespace "$MYSQL_STORAGE_NAMESPACE"
 fi
 if [ "$PHABRICATOR_HOST" != "" ]; then
   if [ "$SSL_TYPE" == "none" ]; then
-    sudo -u git ./bin/config set phabricator.base-uri "http://$PHABRICATOR_HOST/"
+    sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set phabricator.base-uri "http://$PHABRICATOR_HOST/"
   else
-    sudo -u git ./bin/config set phabricator.base-uri "https://$PHABRICATOR_HOST/"
+    sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set phabricator.base-uri "https://$PHABRICATOR_HOST/"
   fi
 fi
 if [ "$PHABRICATOR_CDN" != "" ]; then
   if [ "$SSL_TYPE" == "none" ]; then
-    sudo -u git ./bin/config set security.alternate-file-domain "http://$PHABRICATOR_CDN/"
+    sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set security.alternate-file-domain "http://$PHABRICATOR_CDN/"
   else
-    sudo -u git ./bin/config set security.alternate-file-domain "https://$PHABRICATOR_CDN/"
+    sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set security.alternate-file-domain "https://$PHABRICATOR_CDN/"
   fi
 fi
-sudo -u git ./bin/config set phd.user 'git'
-sudo -u git ./bin/config set pygments.enabled true
+if [ "$PHABRICATOR_VCS_PORT" != "" ]; then
+    sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set diffusion.ssh-port "$PHABRICATOR_VCS_PORT"
+fi
+sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set phd.user "$PHABRICATOR_VCS_USER"
+sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set pygments.enabled true
 if [ "$PHABRICATOR_REPOSITORY_PATH" != "" ]; then
-  sudo -u git ./bin/config set repository.default-local-path "$PHABRICATOR_REPOSITORY_PATH"
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set repository.default-local-path "$PHABRICATOR_REPOSITORY_PATH"
 fi
 if [ "$PHABRICATOR_STORAGE_TYPE" == "mysql" ]; then
-  sudo -u git ./bin/config set storage.mysql-engine.max-size 67108864
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set storage.mysql-engine.max-size 67108864
 fi
 if [ "$PHABRICATOR_STORAGE_TYPE" == "disk" ]; then
-  sudo -u git ./bin/config set storage.mysql-engine.max-size 0
-  sudo -u git ./bin/config set storage.local-disk.path "$PHABRICATOR_STORAGE_PATH"
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set storage.mysql-engine.max-size 0
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set storage.local-disk.path "$PHABRICATOR_STORAGE_PATH"
 fi
 if [ "$PHABRICATOR_STORAGE_TYPE" == "s3" ]; then
-  sudo -u git ./bin/config set storage.mysql-engine.max-size 0
-  sudo -u git ./bin/config set storage.s3.bucket "$PHABRICATOR_STORAGE_BUCKET"
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set storage.mysql-engine.max-size 0
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set storage.s3.bucket "$PHABRICATOR_STORAGE_BUCKET"
 fi
 if [ "$AWS_S3_ACCESS_KEY" != "" ]; then
-  sudo -u git ./bin/config set amazon-s3.access-key "$AWS_S3_ACCESS_KEY"
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set amazon-s3.access-key "$AWS_S3_ACCESS_KEY"
 fi
 if [ "$AWS_S3_SECRET_KEY" != "" ]; then
-  sudo -u git ./bin/config set amazon-s3.secret-key "$AWS_S3_SECRET_KEY"
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set amazon-s3.secret-key "$AWS_S3_SECRET_KEY"
 fi
 if [ "$SSL_TYPE" == "none" ]; then
   APHLICT_PROTOCOL="http"
@@ -216,7 +232,7 @@ else
   APHLICT_PROTOCOL="https"
   APHLICT_PORT=443
 fi
-sudo -u git ./bin/config set notification.servers '[{"type": "client","host": "'$PHABRICATOR_HOST'","port": '$APHLICT_PORT',"protocol": "'$APHLICT_PROTOCOL'","path": "/ws/"},{"type": "admin","host": "127.0.0.1","port": 22281,"protocol": "http"}]'
+sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set notification.servers '[{"type": "client","host": "'$PHABRICATOR_HOST'","port": '$APHLICT_PORT',"protocol": "'$APHLICT_PROTOCOL'","path": "/ws/"},{"type": "admin","host": "127.0.0.1","port": 22281,"protocol": "http"}]'
 unset APHLICT_PROTOCOL
 unset APHLICT_PORT
 popd

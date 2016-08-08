@@ -4,7 +4,7 @@
 # NOTE: Edit these to the correct values for your setup.
 
 AuthorizedKeysCommand /etc/phabricator-ssh/phabricator-ssh-hook.sh
-AuthorizedKeysCommandUser git
+AuthorizedKeysCommandUser __PHABRICATOR_VCS_USER__
 
 # You may need to tweak these options, but mostly they just turn off everything
 # dangerous.
