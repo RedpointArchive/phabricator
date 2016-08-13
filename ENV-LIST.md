@@ -19,7 +19,7 @@
 - `MYSQL_STORAGE_NAMESPACE` - The prefix to use for database names (optional, defaults to "phabricator").
 - `ENABLE_APCU` - Enable the APCu extension for PHP.  This may improve performance, but is not as stable as regular PHP.
 - `ENABLE_UPDATE_ON_START` - By default this image uses the version of Phabricator baked into the image when it was made.  By setting this to "true", it will fetch the latest version of Phabricator when the image starts.
-- `SSL_TYPE` - One of "none", "manual" or "letsencrypt".  See [Basic Configuration](BASIC-CONFIG.md) for more information (defaults to "none").
+- `SSL_TYPE` - One of "none", "manual", "external" or "letsencrypt".  See [Basic Configuration](BASIC-CONFIG.md) for more information (defaults to "none").
 - `SSL_CERTIFICATE` - The path to the SSL certificate chain (manual mode only).
 - `SSL_PRIVATE_KEY` - The path to the SSL private key (manual mode only).
 - `SSL_EMAIL` - The email address to use when registering for an SSL certificate (Let's Encrypt mode only)
