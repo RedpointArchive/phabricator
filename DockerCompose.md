@@ -1,8 +1,8 @@
 # Launch Phabricator with docker-compose command
 
-Docker Compose configuration file supplied in this repository defines a Phabricator service named "phabricator" and a MySQL service named "mysql".
+Docker Compose configuration file supplied in this repository defines a Phabricator service and a MySQL service.
 
-The "mysql" service uses official MySQL Docker image mysql:5.7.14 and the "phabricator" service uses image hachque/phabricator.
+The MySQL service uses official MySQL Docker image mysql:5.7.14 and the Phabricator service uses image hachque/phabricator.
 
 
 ## Configure `PHABRICATOR_HOST`
@@ -13,9 +13,9 @@ If you do not modify the `PHABRICATOR_HOST`, Phabricator will not function corre
 
 ## Docker Volume
 
-By default, it tries to mount host directory /srv/docker/phabricator/mysql as /var/lib/mysql in "mysql" service container and host directory /srv/docker/phabricator/repos as /repo in "phabricator" service container.
+By default, it tries to mount host directory /srv/docker/phabricator/mysql as /var/lib/mysql in MySQL service container and host directory /srv/docker/phabricator/repos as /repo in "phabricator" service container.
 
-Also, it mounts host directory /srv/docker/phabricator/extensions as /srv/phabricator/phabricator/src/extensions in phabricator service.
+It mounts host directory /srv/docker/phabricator/extensions as /srv/phabricator/phabricator/src/extensions in phabricator service.
 
 If you would like to add additional translations for phabricator, you can just drop php files in host directory /srv/docker/phabricator/extensions.
 
