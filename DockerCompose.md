@@ -19,7 +19,7 @@ It mounts host directory /srv/docker/phabricator/extensions as /srv/phabricator/
 
 If you would like to add additional translations for phabricator, you can just drop php files in host directory /srv/docker/phabricator/extensions.
 
-To ensure that MySQL database and code repositories are both persistent, please make sure the following directories exists in your docker host.
+To ensure that MySQL database and code repositories are both persistent, please make sure the following directories exist in your docker host.
 
 ```bash
 /srv/docker/phabricator/repos
