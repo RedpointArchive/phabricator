@@ -13,9 +13,9 @@ If you do not modify the `PHABRICATOR_HOST`, Phabricator will not function corre
 
 ## Docker Volume
 
-By default, it tries to mount host directory /srv/docker/phabricator/mysql as /var/lib/mysql in MySQL service container and host directory /srv/docker/phabricator/repos as /repo in "phabricator" service container.
+By default, it tries to mount host directory /srv/docker/phabricator/mysql as /var/lib/mysql in MySQL service container and host directory /srv/docker/phabricator/repos as /repo in Phabricator service container.
 
-It mounts host directory /srv/docker/phabricator/extensions as /srv/phabricator/phabricator/src/extensions in phabricator service.
+It mounts host directory /srv/docker/phabricator/extensions as /srv/phabricator/phabricator/src/extensions in Phabricator service.
 
 If you would like to add additional translations for phabricator, you can just drop php files in host directory /srv/docker/phabricator/extensions.
 
