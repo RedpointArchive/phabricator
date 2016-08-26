@@ -21,13 +21,16 @@ If you would like to add additional translations for phabricator, you can just d
 
 To ensure that MySQL database and code repositories are both persistent, please make sure the following directories exists in your docker host.
 
+```bash
 /srv/docker/phabricator/repos
-
 /srv/docker/phabricator/mysql
+```
 
 The following directory is optional and can be absent in your docker host.
 
+```bash
 /srv/docker/phabricator/extensions
+```
 
 It is required if you need extra Phabricator translations.
 
