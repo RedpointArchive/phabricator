@@ -18,17 +18,7 @@ docker run \
     hachque/phabricator
 ```
 
-Or you can use Docker Compose to launch phabricator. 
-
-Docker Compose config yml file supplied in this repo defines a phabricator service and a mysql service.
-
-Before you start, you should modify the PHABRICATOR_HOST inside docker-compose.yml so that PHABRICATOR_HOST represents the real domain name you want to use.
-
-By default, it try to mount host directory /srv/docker/phabricator/mysql as /var/lib/mysql in mysql service container and host directory /srv/docker/phabricator/repos as /repo in phabricator service container.
-
-Also, it will mount host directory /srv/docker/phabricator/extensions as /srv/phabricator/phabricator/src/extensions in phabricator service.
-
-If you would like to add additional translations for phabricator, you can just drop php files in host directory /srv/docker/phabricator/extensions.
+Alternatively you can launch this image with Docker Compose. Refer to [Using Docker Compose](./DockerCompose.md) for more information.
 
 
 ## Configuration
