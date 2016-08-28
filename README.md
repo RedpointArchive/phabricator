@@ -18,7 +18,7 @@ docker run \
     hachque/phabricator
 ```
 
-Alternatively you can launch this image with Docker Compose. Refer to [Using Docker Compose](./DockerCompose.md) for more information.
+Alternatively you can launch this image with Docker Compose. Refer to [Using Docker Compose](./DOCKER-COMPOSE.md) for more information.
 
 
 ## Configuration
