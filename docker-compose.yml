@@ -1,0 +1,31 @@
+version: '2'
+services:
+  phabricator:
+    restart: always
+    ports:
+     - "62443:443"
+     - "62080:80"
+     - "62022:22"
+    volumes:
+     - /srv/docker/phabricator/repos:/repos
+     - /srv/docker/phabricator/extensions:/srv/phabricator/phabricator/src/extensions
+    depends_on:
+     - mysql
+    links:
+     - mysql
+    environment:
+     - MYSQL_LINKED_CONTAINER=MYSQL
+     - MYSQL_USER=phabricator
+     - MYSQL_PASS=phabricator
+     - PHABRICATOR_REPOSITORY_PATH=/repos
+     - PHABRICATOR_HOST=myphabricator.com
+    image: hachque/phabricator
+  mysql:
+    restart: always
+    volumes:
+     - /srv/docker/phabricator/mysql:/var/lib/mysql
+    image: mysql:5.7.14
+    environment:
+     - MYSQL_RANDOM_ROOT_PASSWORD=yes
+     - MYSQL_USER=phabricator
+     - MYSQL_PASSWORD=phabricator

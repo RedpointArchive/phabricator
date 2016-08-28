@@ -18,6 +18,9 @@ docker run \
     hachque/phabricator
 ```
 
+Alternatively you can launch this image with Docker Compose. Refer to [Using Docker Compose](./DOCKER-COMPOSE.md) for more information.
+
+
 ## Configuration
 
 For basic configuration in getting the image running, refer to [Basic Configuration](https://github.com/hach-que-docker/phabricator/blob/master/BASIC-CONFIG.md).
