@@ -235,10 +235,9 @@ fi
 sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set notification.servers '[{"type": "client","host": "'$PHABRICATOR_HOST'","port": '$APHLICT_PORT',"protocol": "'$APHLICT_PROTOCOL'","path": "/ws/"},{"type": "admin","host": "127.0.0.1","port": 22281,"protocol": "http"}]'
 unset APHLICT_PROTOCOL
 unset APHLICT_PORT
-popd
-
-#add necessary path to find git-http-backend
+add necessary path to find git-http-backend
 sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set environment.append-paths '["/bin","/usr/bin","/usr/local/bin","/usr/lib/git"]'
+popd
 
 if [ "$ENABLE_APCU" == "true" ]; then
   cat >/etc/php5/conf.d/apcu.ini <<EOF
