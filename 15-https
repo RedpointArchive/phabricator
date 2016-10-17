@@ -93,7 +93,7 @@ if [ "$SSL_TYPE" == "external" ]; then
   if [ ! -f /baked ]; then
     #add the https php preamble when using ssl terminating reverse proxy 
     touch /srv/phabricator/phabricator/support/preamble.php
-    chown nginx:wwwgrp-phabricator /srv/phabricator/phabricator/support/preamble.php
+    chown PHABRICATOR:wwwgrp-phabricator /srv/phabricator/phabricator/support/preamble.php
     chmod a+x /srv/phabricator/phabricator/support/preamble.php
 
     echo "<?php
