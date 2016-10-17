@@ -237,6 +237,9 @@ unset APHLICT_PROTOCOL
 unset APHLICT_PORT
 popd
 
+#add necessary path to find git-http-backend
+sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set environment.append-paths '["/bin","/usr/bin","/usr/local/bin","/usr/lib/git"]'
+
 if [ "$ENABLE_APCU" == "true" ]; then
   cat >/etc/php5/conf.d/apcu.ini <<EOF
 extension=apcu.so
