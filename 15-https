@@ -79,10 +79,10 @@ fi
 
 if [ "$SSL_TYPE" == "manual" ]; then
   if [ ! -f /baked ]; then
-    cp $SSL_CERTIFICATE /etc/nginx/cert.pem
-    cp $SSL_PRIVATE_KEY /etc/nginx/cert.key
+    cp -f $SSL_CERTIFICATE /etc/nginx/cert.pem
+    cp -f $SSL_PRIVATE_KEY /etc/nginx/cert.key
     chown nginx:nginx /etc/nginx/cert.pem /etc/nginx/cert.key 
-    chmod 0400 /etc/nginx/cert.pem /etc/nginx.key
+    chmod 0400 /etc/nginx/cert.pem /etc/nginx/cert.key
 
     # Enable HTTPS using the manual configuration
     mv /etc/nginx/disabled-server-https-manual.conf /etc/nginx/servers/https-manual.conf
