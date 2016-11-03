@@ -52,7 +52,7 @@ if [ "$SSL_TYPE" == "letsencrypt" ]; then
     cat >/etc/cron.weekly/letsencrypt <<EOF
 #!bin/bash
 
-/srv/letsencrypt/letsencrypt-auto certonly --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $SSL_EMAIL -d $PHABRICATOR_HOST
+/srv/letsencrypt/letsencrypt-auto certonly --text --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $SSL_EMAIL -d $PHABRICATOR_HOST
 EOF
     chmod a+x /etc/cron.weekly/letsencrypt
 
