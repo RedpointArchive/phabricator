@@ -16,6 +16,15 @@ if [ "$MYSQL_LINKED_CONTAINER" != "" ]; then
   MYSQL_PORT="${!MYSQL_PORT_VARIABLE}"
   unset MYSQL_HOST_VARIABLE
   unset MYSQL_PORT_VARIABLE
+
+  if [ "$MYSQL_HOST" == "" ]; then
+    # Newer versions of Docker no longer expose environment variables and
+    # instead use DNS.  Fallback to setting the host based on the linked
+    # container name if it's currently empty.  On newer versions of Docker,
+    # you should just use MYSQL_HOST and MYSQL_PORT directly instead.
+    MYSQL_HOST="${MYSQL_LINKED_CONTAINER}"
+    MYSQL_PORT=3306
+  fi
 fi
 
 if [ "$MYSQL_STORAGE_NAMESPACE" == "" ]; then
