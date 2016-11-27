@@ -14,8 +14,8 @@ services:
     links:
      - mysql
     environment:
-     - MYSQL_LINKED_CONTAINER=MYSQL
-     - MYSQL_USER=phabricator
+     - MYSQL_HOST=mysql
+     - MYSQL_USER=root
      - MYSQL_PASS=phabricator
      - PHABRICATOR_REPOSITORY_PATH=/repos
      - PHABRICATOR_HOST=myphabricator.com
@@ -26,6 +26,4 @@ services:
      - /srv/docker/phabricator/mysql:/var/lib/mysql
     image: mysql:5.7.14
     environment:
-     - MYSQL_RANDOM_ROOT_PASSWORD=yes
-     - MYSQL_USER=phabricator
-     - MYSQL_PASSWORD=phabricator
+     - MYSQL_ROOT_PASSWORD=phabricator
