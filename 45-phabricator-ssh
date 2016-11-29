@@ -15,13 +15,13 @@ if [ ! -f /baked ]; then
   if [ -d $PHABRICATOR_HOST_KEYS_PATH ]; then
     cp -v $PHABRICATOR_HOST_KEYS_PATH/* /etc/ssh/
     #ensure correct file modes of private keys
-    chmod 600 /etc/ssh/ssh_host_{dsa,ecdsa,ed25519,,rsa}_key
+    chmod 600 /etc/ssh/ssh_host_{dsa_,ecdsa_,ed25519_,,rsa_}key
   fi
     #generate missing keys --> sshd needs sometimes more keys for newer protocolls
     /usr/sbin/sshd-gen-keys-start
     mkdir -pv $PHABRICATOR_HOST_KEYS_PATH
     #copy only when the file does not exist
-    cp -vn /etc/ssh/ssh_host_{dsa,ecdsa,ed25519,,rsa}_key{,.pub} $PHABRICATOR_HOST_KEYS_PATH/
+    cp -vn /etc/ssh/ssh_host_{dsa_,ecdsa_,ed25519_,,rsa_}key{,.pub} $PHABRICATOR_HOST_KEYS_PATH/
 fi
 
 if [ ! -f /is-baking ]; then
