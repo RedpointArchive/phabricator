@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Source configuration
+source /config.saved
+
+if [ "$DISABLE_IOMONITOR" != "true" ]; then
+  if [ ! -f /is-baking ]; then
+    # Run IO monitor
+    /opt/iomonitor/iomonitor &
+    iomonpid=$!
+
+    echo $iomonpid > /run/watch/iomonitor
+  fi
+fi

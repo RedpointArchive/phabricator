@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Occasionally parsing Git diffs may consume all disk I/O
+# on a server, impacting other services including the web
+# front-end.  This script monitors disk I/O and automatically
+# kills Git processes whenever the CPU has been waiting on
+# the disk for more than 50% of the CPU time in the last
+# 60 seconds.
+
+while [ 0 -eq 0 ]; do
+  RESULTS=$(top -b -n 2 -d 60 | awk '/[0-9.]\ wa,/{print $10}')
+  LAST_RESULT=0
+  for i in $RESULTS; do
+    LAST_RESULT=$i
+  done
+
+  if echo $LAST_RESULT 50 | awk '{exit $1>$2?0:1}'; then
+    echo "[iomonitor] Detected >50% CPU waiting on disk; automatically killing Git processes..."
+    kill -KILL $(pidof git)
+  fi
+
+  sleep 2
+done
