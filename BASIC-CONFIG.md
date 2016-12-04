@@ -17,8 +17,6 @@ docker run ... \
     ...
 ```
 
-Note that the environment variable's value is equal to the linked container's name once converted to the variable format; that is a linked container name of `my.sql.container` would become `MY_SQL_CONTAINER`.
-
 If your instance of MySQL is running on the host or some external system, you can connect to it using the `MYSQL_USER` and associated variables like so:
 
 ```

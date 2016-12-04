@@ -11,7 +11,6 @@
 - `PHABRICATOR_HOST_KEYS_PATH` - The path to store SSH host keys in.  This directory should be a volume mapped from the host, otherwise clients will be unable to connect after the container is restarted.
 - `AWS_S3_ACCESS_KEY` - The AWS access key to use for S3.  Only needed when the `s3` storage type is selected.
 - `AWS_S3_SECRET_KEY` - The AWS secret key to use for S3.  Only needed when the `s3` storage type is selected.
-- `MYSQL_LINKED_CONTAINER` - Use this if you want to connect to a MySQL container (see [Basic Configuration](BASIC-CONFIG.md)).
 - `MYSQL_HOST` - Use this if you want to connect to an external MySQL host (see [Basic Configuration](BASIC-CONFIG.md)).
 - `MYSQL_PORT` - When connecting to an external MySQL host, use this port (optional).
 - `MYSQL_USER` - The user to connect to MySQL as.
@@ -23,6 +22,7 @@
 - `SSL_CERTIFICATE` - The path to the SSL certificate chain (manual mode only).
 - `SSL_PRIVATE_KEY` - The path to the SSL private key (manual mode only).
 - `SSL_EMAIL` - The email address to use when registering for an SSL certificate (Let's Encrypt mode only)
+- `DISABLE_IOMONITOR` - Disable the I/O monitor, which warns if the image is spending a lot of CPU time waiting on disk I/O.
 
 The following advanced options automatically turn on `ENABLE_UPDATE_ON_START`:
 
