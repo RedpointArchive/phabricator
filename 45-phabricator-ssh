@@ -14,18 +14,14 @@ fi
 if [ ! -f /baked ]; then
   if [ -d $PHABRICATOR_HOST_KEYS_PATH ]; then
     cp -v $PHABRICATOR_HOST_KEYS_PATH/* /etc/ssh/
-  else
+    #ensure correct file modes of private keys
+    chmod 600 /etc/ssh/ssh_host_{dsa_,ecdsa_,ed25519_,,rsa_}key
+  fi
+    #generate missing keys --> sshd needs sometimes more keys for newer protocolls
     /usr/sbin/sshd-gen-keys-start
     mkdir -pv $PHABRICATOR_HOST_KEYS_PATH
-    cp -v /etc/ssh/ssh_host_key $PHABRICATOR_HOST_KEYS_PATH/
-    cp -v /etc/ssh/ssh_host_key.pub $PHABRICATOR_HOST_KEYS_PATH/
-    cp -v /etc/ssh/ssh_host_dsa_key $PHABRICATOR_HOST_KEYS_PATH/
-    cp -v /etc/ssh/ssh_host_dsa_key.pub $PHABRICATOR_HOST_KEYS_PATH/
-    cp -v /etc/ssh/ssh_host_rsa_key $PHABRICATOR_HOST_KEYS_PATH/
-    cp -v /etc/ssh/ssh_host_rsa_key.pub $PHABRICATOR_HOST_KEYS_PATH/
-    cp -v /etc/ssh/ssh_host_ecdsa_key $PHABRICATOR_HOST_KEYS_PATH/
-    cp -v /etc/ssh/ssh_host_ecdsa_key.pub $PHABRICATOR_HOST_KEYS_PATH/
-  fi
+    #copy only when the file does not exist
+    cp -vn /etc/ssh/ssh_host_{dsa_,ecdsa_,ed25519_,,rsa_}key{,.pub} $PHABRICATOR_HOST_KEYS_PATH/
 fi
 
 if [ ! -f /is-baking ]; then
