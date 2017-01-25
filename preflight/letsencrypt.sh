@@ -46,5 +46,5 @@ if [ "$SSL_TYPE" == "letsencrypt" ]; then
   fi
 
   echo "Reloading nginx..."
-  /usr/sbin/nginx -t && /usr/sbin/nginx -s reload
+  /usr/sbin/nginx -t -c /app/nginx.ssl.conf && /usr/sbin/nginx -t -c /app/nginx.conf && /usr/sbin/nginx -s reload
 fi
