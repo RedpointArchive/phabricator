@@ -22,6 +22,7 @@
 - `SSL_CERTIFICATE` - The path to the SSL certificate chain (manual mode only).
 - `SSL_PRIVATE_KEY` - The path to the SSL private key (manual mode only).
 - `SSL_EMAIL` - The email address to use when registering for an SSL certificate (Let's Encrypt mode only)
+- `SSL_DOMAINS` - An optional comma seperated list of the domains to issue for, in addition to `PHABRICATOR_HOST` (Let's Encrypt mode only)
 - `DISABLE_IOMONITOR` - Disable the I/O monitor, which warns if the image is spending a lot of CPU time waiting on disk I/O.
 
 The following advanced options automatically turn on `ENABLE_UPDATE_ON_START`:

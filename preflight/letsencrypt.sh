@@ -1,16 +1,41 @@
 #!/bin/bash
 
-set -e
 set -x
 
 source /config.saved
 
 if [ "$SSL_TYPE" == "letsencrypt" ]; then
-  if [ "$PHABRICATOR_CDN" != "" ]; then
-    /srv/letsencrypt/letsencrypt-auto certonly --text --non-interactive --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $SSL_EMAIL -d $PHABRICATOR_HOST,$PHABRICATOR_CDN
-  else
-    /srv/letsencrypt/letsencrypt-auto certonly --text --non-interactive --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $SSL_EMAIL -d $PHABRICATOR_HOST
-  fi
+  while [ 0 -eq 0 ]; do
+    if [ "$SSL_DOMAINS" != "" ]; then
+      /srv/letsencrypt/letsencrypt-auto certonly --text --non-interactive --keep --debug  --agree-tos --webroot -w /srv/letsencrypt-webroot --email $SSL_EMAIL -d $PHABRICATOR_HOST,$SSL_DOMAINS
+      if [ -f /config/letsencrypt/live/$PHABRICATOR_HOST ]; then
+        break
+      done
+      if [ $? -ne 0 ]; then
+        sleep 10
+        continue
+      fi
+    elif [ "$PHABRICATOR_CDN" != "" ]; then
+      /srv/letsencrypt/letsencrypt-auto certonly --text --non-interactive --keep --debug  --agree-tos --webroot -w /srv/letsencrypt-webroot --email $SSL_EMAIL -d $PHABRICATOR_HOST,$PHABRICATOR_CDN
+      if [ -f /config/letsencrypt/live/$PHABRICATOR_HOST ]; then
+        break
+      done
+      if [ $? -ne 0 ]; then
+        sleep 10
+        continue
+      fi
+    else
+      /srv/letsencrypt/letsencrypt-auto certonly --text --non-interactive --keep --debug  --agree-tos --webroot -w /srv/letsencrypt-webroot --email $SSL_EMAIL -d $PHABRICATOR_HOST
+      if [ -f /config/letsencrypt/live/$PHABRICATOR_HOST ]; then
+        break
+      done
+      if [ $? -ne 0 ]; then
+        sleep 10
+        continue
+      fi
+    fi
+    break
+  done
 
   rm /config/letsencrypt/installed
   ln -s /config/letsencrypt/live/$PHABRICATOR_HOST /config/letsencrypt/installed
@@ -21,5 +46,5 @@ if [ "$SSL_TYPE" == "letsencrypt" ]; then
   fi
 
   echo "Reloading nginx..."
-  /usr/local/nginx/sbin/nginx -t && /usr/local/nginx/sbin/nginx -s reload
+  /usr/sbin/nginx -t && /usr/sbin/nginx -s reload
 fi
