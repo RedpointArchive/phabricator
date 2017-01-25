@@ -2,7 +2,7 @@
 
 Docker Compose configuration file supplied in this repository defines a Phabricator service and a MySQL service.
 
-The MySQL service uses official MySQL Docker image mysql:5.7.14 and the Phabricator service uses image hachque/phabricator.
+The MySQL service uses official MySQL Docker image mysql:5.7.14 and the Phabricator service uses image redpointgames/phabricator.
 
 
 ## Configure `PHABRICATOR_HOST`

@@ -22,6 +22,11 @@ if [ "$MYSQL_STORAGE_NAMESPACE" == "" ]; then
   MYSQL_STORAGE_NAMESPACE=phabricator
 fi
 
+if [ "${MYSQL_PORT:0:6}" == "tcp://" ]; then
+  echo "Error: MYSQL_PORT environment variable has been set based on a container link called mysql.  This places an invalid value inside MYSQL_PORT, which causes Phabricator startup to fail later on.  When using a linked container called mysql, you should explicitly set MYSQL_PORT=3306 to ensure it has a valid value."
+  exit 1
+fi
+
 if [ "$SSL_TYPE" == "" ]; then
   SSL_TYPE=none
 fi
@@ -78,6 +83,7 @@ if [ -d /config/keycache ]; then
   PHABRICATOR_HOST_KEYS_PATH="/config/keycache"
 fi
 
+set +x
 cat >/config.saved <<EOF
 OVERRIDE_PHABRICATOR_URI="$OVERRIDE_PHABRICATOR_URI"
 OVERRIDE_PHABRICATOR_BRANCH="$OVERRIDE_PHABRICATOR_BRANCH"
@@ -99,7 +105,9 @@ AWS_S3_SECRET_KEY="$AWS_S3_SECRET_KEY"
 MYSQL_HOST="$MYSQL_HOST"
 MYSQL_PORT="$MYSQL_PORT"
 MYSQL_USER="$MYSQL_USER"
+set +x
 MYSQL_PASS="$MYSQL_PASS"
+set -x
 MYSQL_STORAGE_NAMESPACE="$MYSQL_STORAGE_NAMESPACE"
 ENABLE_APCU="$ENABLE_APCU"
 ENABLE_UPDATE_ON_START="$ENABLE_UPDATE_ON_START"
@@ -115,6 +123,7 @@ SCRIPT_BEFORE_DAEMONS="$SCRIPT_BEFORE_DAEMONS"
 SCRIPT_AFTER_DAEMONS="$SCRIPT_AFTER_DAEMONS"
 DISABLE_IOMONITOR="$DISABLE_IOMONITOR"
 EOF
+set -x
 
 # Reload configuration
 source /config.saved
@@ -181,9 +190,11 @@ fi
 if [ "$MYSQL_USER" != "" ]; then
   sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set mysql.user "$MYSQL_USER"
 fi
+set +x
 if [ "$MYSQL_PASS" != "" ]; then
   sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set mysql.pass "$MYSQL_PASS"
 fi
+set -x
 if [ "$MYSQL_STORAGE_NAMESPACE" != "" ]; then
   sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set storage.default-namespace "$MYSQL_STORAGE_NAMESPACE"
 fi
@@ -205,6 +216,7 @@ if [ "$PHABRICATOR_VCS_PORT" != "" ]; then
     sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set diffusion.ssh-port "$PHABRICATOR_VCS_PORT"
 fi
 sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set phd.user "$PHABRICATOR_VCS_USER"
+sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set diffusion.ssh-user "$PHABRICATOR_VCS_USER"
 sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set pygments.enabled true
 if [ "$PHABRICATOR_REPOSITORY_PATH" != "" ]; then
   sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set repository.default-local-path "$PHABRICATOR_REPOSITORY_PATH"
@@ -252,7 +264,9 @@ fi
 
 # The search database may need to be repaired, and if so, will prevent bin/storage upgrade from working
 # so preemptively run a repair on that database now.
+set +x
 mysqlcheck --host="$MYSQL_HOST" --port="$MYSQL_PORT" --user="$MYSQL_USER" --password="$MYSQL_PASS" --databases "${MYSQL_STORAGE_NAMESPACE}_search" || true
+set -x
 
 /srv/phabricator/phabricator/bin/storage upgrade --force
 

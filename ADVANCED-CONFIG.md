@@ -67,7 +67,7 @@ You can bake the configuration and initial start-up of this image into your own 
 To bake an image, create a `Dockerfile` like this:
 
 ```
-FROM hachque/phabricator
+FROM redpointgames/phabricator
 
 ADD my-script /my-script
 RUN /my-script

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 # Source configuration
 source /config.saved
 
@@ -51,4 +54,26 @@ if [ ! -f /is-baking ]; then
   pushd /srv/phabricator/phabricator
   sudo -u "$PHABRICATOR_VCS_USER" bin/aphlict start --config=/srv/aphlict.conf
   popd
+
+  set +e
+  set +x
+
+  PIDFILE=/run/watch/aphlict
+
+  COUNT=0
+  while [ ! -f $PIDFILE ]; do
+    echo "Waiting for $PIDFILE to appear..."
+    sleep 1
+    COUNT=$[$COUNT+1]
+    if [ $COUNT -gt 60 ]; then
+      exit 1
+    fi
+  done
+
+  PID=$(cat $PIDFILE)
+  while s=`ps -p $PID -o s=` && [[ "$s" && "$s" != 'Z' ]]; do
+    sleep 1
+  done
+
+  exit 0
 fi

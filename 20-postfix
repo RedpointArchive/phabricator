@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if [ ! -f /is-baking ]; then
-  # Run Postfix
-  export SYSTEMD_NO_WRAP=true
-  /etc/init.d/postfix start
-fi
-

@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Source configuration
+source /config.saved
+
+if [ "$SSL_TYPE" == "letsencrypt" ]; then 
+  if [ ! -f /is-baking ]; then
+    # If the /config directory doesn't exist, abort
+    if [ ! -d /config ]; then
+      echo "You must volume mount /config in Docker to a permanent location for   Let's Encrypt to work."
+      exit 1
+    fi
+
+    # If the Let's Encrypt folder doesn't exist, create it
+    if [ ! -d /config/letsencrypt ]; then
+      mkdir /config/letsencrypt
+    fi
+  fi
+
+  if [ ! -f /baked ]; then
+    # Make the webroot that we will store certificates in
+    mkdir /srv/letsencrypt-webroot
+   
+    # Link the Let's Encrypt folder into the configuration directory
+    ln -s /config/letsencrypt /etc/letsencrypt
+
+    # Enable the Let's Encrypt SSL server
+    mv /app/disabled-server-https-letsencrypt.conf /app/nginx.ssl.letsencrypt.conf
+
+    # Set up regular renewal
+    ln -s /app/letsencrypt.sh /etc/cron.hourly/letsencrypt.sh
+    chmod a+x /etc/cron.hourly/letsencrypt.sh
+  fi
+elif [ "$SSL_TYPE" == "manual" ]; then
+  if [ ! -f /baked ]; then
+    cp -f $SSL_CERTIFICATE /etc/nginx/cert.pem
+    cp -f $SSL_PRIVATE_KEY /etc/nginx/cert.key
+    chown nginx:nginx /etc/nginx/cert.pem /etc/nginx/cert.key 
+    chmod 0400 /etc/nginx/cert.pem /etc/nginx/cert.key
+
+    # Enable HTTPS using the manual configuration
+    mv /app/disabled-server-https-manual.conf /app/nginx.ssl.manual.conf
+  fi
+elif [ "$SSL_TYPE" == "external" ]; then
+  if [ ! -f /baked ]; then
+    # Add the HTTPS PHP preamble when using SSL terminating reverse proxy 
+    touch /srv/phabricator/phabricator/support/preamble.php
+    chown $PHABRICATOR_VCS_USER:wwwgrp-phabricator /srv/phabricator/phabricator/support/preamble.php
+    chmod a+x /srv/phabricator/phabricator/support/preamble.php
+
+    echo "<?php
+
+    \$_SERVER['HTTPS'] = true;" > /srv/phabricator/phabricator/support/preamble.php
+  fi
+fi

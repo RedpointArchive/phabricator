@@ -1,6 +1,8 @@
 FROM hachque/systemd-none
 
 EXPOSE 80 443 22 24
-ADD nginx.conf server-http.conf server-https-letsencrypt.conf server-https-manual.conf fastcgi.conf 15-https 25-nginx 25-php-fpm 20-postfix 10-boot-conf 35-phd 40-aphlict 50-cronie 60-iomonitor php-fpm.conf php.ini setup.sh sshd_config.phabricator 45-phabricator-ssh phabricator-ssh-hook.sh bake iomonitor /preflight/
+COPY baseline /baseline
+RUN /baseline/setup.sh
+COPY preflight /preflight
 RUN /preflight/setup.sh
-CMD ["/init"]
+CMD ["/bin/bash", "/app/init.sh"]

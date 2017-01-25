@@ -15,11 +15,12 @@ docker run \
     --env MYSQL_PASS=pass \
     --env PHABRICATOR_REPOSITORY_PATH=/repos \
     -v /host/repo/path:/repos \
-    hachque/phabricator
+    redpointgames/phabricator
 ```
 
 Alternatively you can launch this image with Docker Compose. Refer to [Using Docker Compose](./DOCKER-COMPOSE.md) for more information.
 
+**NOTICE:** This repository has been recently moved to `RedpointGames/phabricator` and the Docker image to use is now `redpointgames/phabricator`.  `hachque/phabricator` will be kept in sync with `redpointgames/phabricator` for the foreseeable future, so you don't need to update your configuration immediately.
 
 ## Configuration
 

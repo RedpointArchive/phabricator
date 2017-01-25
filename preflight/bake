@@ -6,7 +6,7 @@
 #
 # Usage:
 #
-# FROM hachque/phabricator
+# FROM redpointgames/phabricator
 #
 # ADD my-script /my-script
 # RUN /my-script

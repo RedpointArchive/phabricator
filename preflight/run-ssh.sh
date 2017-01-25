@@ -28,11 +28,26 @@ if [ ! -f /is-baking ]; then
   # Run SSHD
   /usr/sbin/sshd -f /etc/phabricator-ssh/sshd_config.phabricator
 
-  # Wait for /run/sshd-phabricator.pid to appear and copy it.
-  while [ ! -e /run/sshd-phabricator.pid ]; do
-    echo "Waiting for /run/sshd-phabricator.pid to appear..."
+  set +e
+  set +x
+
+  PIDFILE=/run/sshd-phabricator.pid
+
+  COUNT=0
+  while [ ! -f $PIDFILE ]; do
+    echo "Waiting for $PIDFILE to appear..."
+    sleep 1
+    COUNT=$[$COUNT+1]
+    if [ $COUNT -gt 60 ]; then
+      exit 1
+    fi
+  done
+
+  PID=$(cat $PIDFILE)
+  while s=`ps -p $PID -o s=` && [[ "$s" && "$s" != 'Z' ]]; do
     sleep 1
   done
-  cp /run/sshd-phabricator.pid /run/watch/sshd-phabricator
+
+  exit 0
 fi
 
