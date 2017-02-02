@@ -10,7 +10,7 @@ if [ "$SSL_TYPE" == "letsencrypt" ]; then
       /srv/letsencrypt/letsencrypt-auto certonly --text --non-interactive --keep --debug  --agree-tos --webroot -w /srv/letsencrypt-webroot --email $SSL_EMAIL -d $PHABRICATOR_HOST,$SSL_DOMAINS
       if [ -f /config/letsencrypt/live/$PHABRICATOR_HOST ]; then
         break
-      done
+      fi
       if [ $? -ne 0 ]; then
         sleep 10
         continue
@@ -19,7 +19,7 @@ if [ "$SSL_TYPE" == "letsencrypt" ]; then
       /srv/letsencrypt/letsencrypt-auto certonly --text --non-interactive --keep --debug  --agree-tos --webroot -w /srv/letsencrypt-webroot --email $SSL_EMAIL -d $PHABRICATOR_HOST,$PHABRICATOR_CDN
       if [ -f /config/letsencrypt/live/$PHABRICATOR_HOST ]; then
         break
-      done
+      fi
       if [ $? -ne 0 ]; then
         sleep 10
         continue
@@ -28,7 +28,7 @@ if [ "$SSL_TYPE" == "letsencrypt" ]; then
       /srv/letsencrypt/letsencrypt-auto certonly --text --non-interactive --keep --debug  --agree-tos --webroot -w /srv/letsencrypt-webroot --email $SSL_EMAIL -d $PHABRICATOR_HOST
       if [ -f /config/letsencrypt/live/$PHABRICATOR_HOST ]; then
         break
-      done
+      fi
       if [ $? -ne 0 ]; then
         sleep 10
         continue
