@@ -48,6 +48,6 @@ if [ ! -f /is-baking ]; then
     sleep 1
   done
 
-  exit 0
+  exit 1  # Supervisord will restart.
 fi
 
