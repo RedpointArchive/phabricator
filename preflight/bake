@@ -31,9 +31,8 @@ set -x
 
 touch /is-baking
 
-for i in /etc/init.simple/*; do
-  $i
-done
+/app/startup/10-boot-conf
+/app/startup/15-https-conf
 
 touch /baked
 rm /is-baking
