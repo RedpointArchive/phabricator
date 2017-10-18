@@ -7,6 +7,9 @@ source /config.saved
 # SSH services.
 if [ "$PHABRICATOR_HOST_KEYS_PATH" == "" ]; then
   echo "PHABRICATOR_HOST_KEYS_PATH is not set; unable to provide SSH access to repositories."
+  while [ 0 -eq 0 ]; do
+    sleep 10000
+  done
   exit 0
 fi
 

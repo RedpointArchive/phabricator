@@ -4,8 +4,15 @@ set -e
 set -x
 
 export SYSTEMD_NO_WRAP=true
-/etc/init.d/postfix start
-PIDFILE=/var/spool/postfix/pid/master.pid
+export PIDFILE=/var/spool/postfix/pid/master.pid
+mkdir -pv /var/spool/postfix/pid
+. /etc/sysconfig/postfix
+/etc/postfix/system/config_postfix
+/etc/postfix/system/update_chroot
+/etc/postfix/system/update_postmaps
+/usr/sbin/postfix start
+/etc/postfix/system/wait_qmgr 60
+/etc/postfix/system/cond_slp register
 
 set +e
 set +x

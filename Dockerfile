@@ -1,4 +1,4 @@
-FROM hachque/systemd-none
+FROM opensuse:42.3
 
 EXPOSE 80 443 22 24
 COPY baseline /baseline

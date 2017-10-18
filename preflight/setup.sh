@@ -32,6 +32,7 @@ mv php.ini /etc/php5/fpm/php.ini
 mv supervisord.conf /app/supervisord.conf
 mv init.sh /app/init.sh
 
+mkdir -pv /run/watch
 mkdir /etc/phabricator-ssh
 mv sshd_config.phabricator /etc/phabricator-ssh/sshd_config.phabricator.template
 mv phabricator-ssh-hook.sh /etc/phabricator-ssh/phabricator-ssh-hook.sh.template
