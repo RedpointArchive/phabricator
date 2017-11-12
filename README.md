@@ -18,13 +18,13 @@ docker run \
     redpointgames/phabricator
 ```
 
-Alternatively you can launch this image with Docker Compose. Refer to [Using Docker Compose](https://github.com/hach-que-docker/phabricator/blob/master/DOCKER-COMPOSE.md) for more information.
+Alternatively you can launch this image with Docker Compose. Refer to [Using Docker Compose](https://github.com/RedpointGames/phabricator/blob/master/DOCKER-COMPOSE.md) for more information.
 
 **NOTICE:** This repository has been recently moved to `RedpointGames/phabricator` and the Docker image to use is now `redpointgames/phabricator`.  `hachque/phabricator` will be kept in sync with `redpointgames/phabricator` for the foreseeable future, so you don't need to update your configuration immediately.
 
 ## Configuration
 
-For basic configuration in getting the image running, refer to [Basic Configuration](https://github.com/hach-que-docker/phabricator/blob/master/BASIC-CONFIG.md).
+For basic configuration in getting the image running, refer to [Basic Configuration](https://github.com/RedpointGames/phabricator/blob/master/BASIC-CONFIG.md).
 
 For more advanced configuration topics including:
 
@@ -32,7 +32,7 @@ For more advanced configuration topics including:
 * Running custom commands during the boot process, and
 * Baking configuration into your own derived Docker image
 
-refer to [Advanced Configuration](https://github.com/hach-que-docker/phabricator/blob/master/ADVANCED-CONFIG.md).
+refer to [Advanced Configuration](https://github.com/RedpointGames/phabricator/blob/master/ADVANCED-CONFIG.md).
 
 For users that are upgrading to this version and currently using the old `/config` mechanism to configure Phabricator, this configuration mechanism will continue to work, but it's recommended that you migrate to environment variables or baked images when you next get the chance.
 
