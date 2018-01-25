@@ -239,6 +239,12 @@ fi
 if [ "$AWS_S3_SECRET_KEY" != "" ]; then
   sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set amazon-s3.secret-key "$AWS_S3_SECRET_KEY"
 fi
+if [ "$AWS_S3_REGION" != "" ]; then
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set amazon-s3.region "$AWS_S3_REGION"
+fi
+if [ "$AWS_S3_ENDPOINT" != "" ]; then
+  sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set amazon-s3.endpoint "$AWS_S3_ENDPOINT"
+fi
 if [ "$SSL_TYPE" == "none" ]; then
   APHLICT_PROTOCOL="http"
   APHLICT_PORT=80
