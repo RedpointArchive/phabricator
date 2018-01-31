@@ -11,6 +11,8 @@
 - `PHABRICATOR_HOST_KEYS_PATH` - The path to store SSH host keys in.  This directory should be a volume mapped from the host, otherwise clients will be unable to connect after the container is restarted.
 - `AWS_S3_ACCESS_KEY` - The AWS access key to use for S3.  Only needed when the `s3` storage type is selected.
 - `AWS_S3_SECRET_KEY` - The AWS secret key to use for S3.  Only needed when the `s3` storage type is selected.
+- `AWS_S3_REGION` - The AWS region to use for S3.  Only needed when the `s3` storage type is selected. Used in combination with `AWS_S3_REGION`. See [AWS Docs](https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region).
+- `AWS_S3_ENDPOINT` - The AWS endpoint to use for S3.  Only needed when the `s3` storage type is selected. Used in combination with `AWS_S3_ENDPOINT`. See [AWS Docs](https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region).
 - `MYSQL_HOST` - Use this if you want to connect to an external MySQL host (see [Basic Configuration](BASIC-CONFIG.md)).
 - `MYSQL_PORT` - When connecting to an external MySQL host, use this port (optional).
 - `MYSQL_USER` - The user to connect to MySQL as.
