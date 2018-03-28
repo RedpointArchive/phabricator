@@ -200,6 +200,7 @@ if [ "$MYSQL_STORAGE_NAMESPACE" != "" ]; then
   sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set storage.default-namespace "$MYSQL_STORAGE_NAMESPACE"
 fi
 if [ "$PHABRICATOR_HOST" != "" ]; then
+  PHABRICATOR_PORT=$(echo $PHABRICATOR_HOST | awk -F : '{print $2 }')
   if [ "$SSL_TYPE" == "none" ]; then
     sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set phabricator.base-uri "http://$PHABRICATOR_HOST/"
   else
@@ -251,6 +252,9 @@ if [ "$SSL_TYPE" == "none" ]; then
 else
   APHLICT_PROTOCOL="https"
   APHLICT_PORT=443
+fi
+if [ "$PHABRICATOR_PORT" != "" ]; then
+  APHLICT_PORT=$PHABRICATOR_PORT
 fi
 sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set notification.servers '[{"type": "client","host": "'$PHABRICATOR_HOST'","port": '$APHLICT_PORT',"protocol": "'$APHLICT_PROTOCOL'","path": "/ws/"},{"type": "admin","host": "127.0.0.1","port": 22281,"protocol": "http"}]'
 unset APHLICT_PROTOCOL
