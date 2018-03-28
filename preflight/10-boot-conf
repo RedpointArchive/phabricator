@@ -217,6 +217,7 @@ if [ "$PHABRICATOR_VCS_PORT" != "" ]; then
     sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set diffusion.ssh-port "$PHABRICATOR_VCS_PORT"
 fi
 sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set phd.user "$PHABRICATOR_VCS_USER"
+sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set environment.append-paths '["/usr/lib/git"]'
 sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set diffusion.ssh-user "$PHABRICATOR_VCS_USER"
 sudo -u "$PHABRICATOR_VCS_USER" ./bin/config set pygments.enabled true
 if [ "$PHABRICATOR_REPOSITORY_PATH" != "" ]; then
